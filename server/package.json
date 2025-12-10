@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "expess": "^0.0.1-security",
+    "sql2": "^0.0.1"
+  }
+}
