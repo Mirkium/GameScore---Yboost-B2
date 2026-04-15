@@ -1,0 +1,1 @@
+export { Profile as User } from "./profile.entity";
