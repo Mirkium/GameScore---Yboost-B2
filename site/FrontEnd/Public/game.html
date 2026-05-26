@@ -30,8 +30,8 @@
             <img src="./assets/img/Image-not-found.png" alt="The Last Of Us Part 1" class="gameCover">
             <div class="gameInfo">
                 <div class="pageIntro">
-                    <h1 class="pageTitle">The Last Of Us : Part 1</h1>
-                    <p class="pageText">An action-adventure survival story about trust, danger and difficult choices in a broken world.</p>
+                    <h1 class="pageTitle sk"></h1>
+                    <p class="pageText sk"></p>
                 </div>
                 <div class="gameMeta">
                     <span class="metaTag">Action</span>
@@ -39,10 +39,20 @@
                     <span class="metaTag">Naughty Dog</span>
                     <span class="metaTag">2022</span>
                 </div>
-                <a href="#review-form" class="neonBtn">Write Review</a>
+                <div class="gameActions">
+                    <a href="#review-form" class="neonBtn">Write Review</a>
+                    <button type="button" class="neonBtn favoriteBtn" id="favoriteBtn">♥ Favorite</button>
+                </div>
             </div>
             <div class="scoreBox">
-                <p class="gameScore">97</p>
+                <div class="scoreItem">
+                    <span class="scoreLabel">RAWG</span>
+                    <p class="gameScore sk" id="rawgScore"></p>
+                </div>
+                <div class="scoreItem">
+                    <span class="scoreLabel">Community</span>
+                    <p class="gameScore sk" id="communityScore"></p>
+                </div>
             </div>
         </section>
 
@@ -52,24 +62,24 @@
                 <div class="reviewList">
                     <article class="reviewItem">
                         <div>
-                            <h3>NeoPlayer</h3>
-                            <p>Great atmosphere, clean pacing, and characters that stay with you after the credits.</p>
+                            <h3 class="sk">&nbsp;</h3>
+                            <p class="sk">&nbsp;</p>
                         </div>
-                        <p class="smallScore">94</p>
+                        <p class="smallScore sk">&nbsp;</p>
                     </article>
                     <article class="reviewItem">
                         <div>
-                            <h3>PixelRunner</h3>
-                            <p>The gameplay is classic, but the remake makes every scene feel sharper and heavier.</p>
+                            <h3 class="sk">&nbsp;</h3>
+                            <p class="sk">&nbsp;</p>
                         </div>
-                        <p class="smallScore">88</p>
+                        <p class="smallScore sk">&nbsp;</p>
                     </article>
                     <article class="reviewItem">
                         <div>
-                            <h3>CyberLena</h3>
-                            <p>A strong story game, even if some fights feel a bit too familiar.</p>
+                            <h3 class="sk">&nbsp;</h3>
+                            <p class="sk">&nbsp;</p>
                         </div>
-                        <p class="smallScore">76</p>
+                        <p class="smallScore sk">&nbsp;</p>
                     </article>
                 </div>
             </div>
@@ -95,6 +105,7 @@
         </section>
     </main>
 
+    <script src="./assets/js/api.js"></script>
     <script src="./assets/js/app-ui.js"></script>
     <script src="./assets/js/score-color.js"></script>
 </body>
