@@ -6,6 +6,7 @@ import {
 } from "../types/dtos/game.dto";
 import {
   CreateGameCommentDto,
+  CreateGameReviewDto,
   LikeGameDto,
   RateGameDto,
 } from "../types/dtos/game-interaction.dto";
@@ -35,6 +36,35 @@ type CachedSearchPayload = {
 
 export class GameService {
   private readonly rawgSearchCache = new LruCache<string, CachedSearchPayload>(50);
+
+  private normalizeSearchRatings(
+    results: ReadonlyArray<Record<string, unknown>>
+  ) {
+    return results.map((item) => {
+      const rating = item.rating;
+      const ratingTop = item.rating_top;
+      const community = (item as Record<string, unknown>).community as
+        | { averageRating: number | null }
+        | undefined;
+
+      const next = { ...item } as Record<string, unknown>;
+
+      if (typeof rating === "number") {
+        next.rating = Math.round(rating * 20);
+      }
+      if (typeof ratingTop === "number") {
+        next.rating_top = ratingTop * 20;
+      }
+      if (community && typeof community.averageRating === "number") {
+        next.community = {
+          ...community,
+          averageRating: Math.round(community.averageRating),
+        };
+      }
+
+      return next;
+    });
+  }
 
   private enrichResultsWithCommunity(
     results: ReadonlyArray<Record<string, unknown>>,
@@ -149,7 +179,9 @@ export class GameService {
     const communityStatsByGameId =
       await profileInteractionRepository.findCommunityStatsByGameIds(gameIds);
 
-    const games = this.enrichResultsWithCommunity(filteredByRating, communityStatsByGameId);
+    const games = this.normalizeSearchRatings(
+      this.enrichResultsWithCommunity(filteredByRating, communityStatsByGameId)
+    );
 
     return {
       count: result.count,
@@ -158,9 +190,18 @@ export class GameService {
     };
   }
 
-  public async getGameById(gameId: number) {
+  public async getGameById(gameId: number, profileId?: string) {
     const game = await gameSyncService.resolveGame(gameId);
-    return toGamePresenter(game);
+    const stats = await profileInteractionRepository.findCommunityStatsByGameIds([game.id]);
+    const community = stats.get(game.id);
+    let userLike = undefined;
+    if (profileId) {
+      const like = await profileInteractionRepository.findLikeByProfileAndGame(profileId, game.id);
+      if (like) {
+        userLike = { liked: true, favorited: like.isFavorite };
+      }
+    }
+    return toGamePresenter(game, community, userLike);
   }
 
   public async searchGames(query: ExternalGameSearchQueryDto) {
@@ -230,7 +271,8 @@ export class GameService {
     const comment = await profileInteractionRepository.createComment(
       profileId,
       game.id,
-      payload.comment
+      payload.comment,
+      payload.title ?? null
     );
 
     return toGameCommentPresenter(comment);
@@ -242,18 +284,114 @@ export class GameService {
       throw new AppError(404, "Profile not found");
     }
 
-    if (payload.stars < 1 || payload.stars > 5) {
-      throw new AppError(400, "stars must be between 1 and 5");
+    if (payload.rating < 0 || payload.rating > 100) {
+      throw new AppError(400, "rating must be between 0 and 100");
     }
 
     const game = await gameSyncService.resolveGame(gameId);
     const rating = await profileInteractionRepository.upsertRating(
       profileId,
       game.id,
-      payload.stars
+      payload.rating
     );
 
     return toGameRatingPresenter(rating);
+  }
+
+  public async getGameReviews(gameId: number) {
+    const game = await gameSyncService.resolveGame(gameId);
+
+    const [comments, ratings] = await Promise.all([
+      profileInteractionRepository.findCommentsByGameId(game.id),
+      profileInteractionRepository.findRatingsByGameId(game.id),
+    ]);
+
+    const latestRatingByProfile = new Map<string, number>();
+    for (const r of ratings) {
+      latestRatingByProfile.set(r.profile.id, r.stars);
+    }
+
+    const profilesWithComments = new Set<string>();
+
+    const result: Array<{
+      profileId: string;
+      username: string | null;
+      title: string | null;
+      comment: string | null;
+      rating: number | null;
+      createdAt: Date;
+    }> = [];
+
+    for (const c of comments) {
+      profilesWithComments.add(c.author.id);
+      result.push({
+        profileId: c.author.id,
+        username: c.author.username ?? null,
+        title: c.title,
+        comment: c.comment,
+        rating: c.rating ?? latestRatingByProfile.get(c.author.id) ?? null,
+        createdAt: c.createdAt,
+      });
+    }
+
+    for (const r of ratings) {
+      if (profilesWithComments.has(r.profile.id)) continue;
+      result.push({
+        profileId: r.profile.id,
+        username: r.profile.username ?? null,
+        title: null,
+        comment: null,
+        rating: r.stars,
+        createdAt: r.createdAt,
+      });
+    }
+
+    result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    return result;
+  }
+
+  public async createGameReview(
+    profileId: string,
+    gameId: number,
+    payload: CreateGameReviewDto
+  ) {
+    const profile = await profileRepository.findById(profileId);
+    if (!profile) {
+      throw new AppError(404, "Profile not found");
+    }
+
+    if (!payload.comment && payload.rating === undefined) {
+      throw new AppError(400, "Provide at least a comment or a rating");
+    }
+
+    const game = await gameSyncService.resolveGame(gameId);
+
+    let commentResult = null;
+    let ratingResult = null;
+
+    if (payload.comment) {
+      commentResult = await profileInteractionRepository.createComment(
+        profileId,
+        game.id,
+        payload.comment,
+        payload.title ?? null,
+        payload.rating ?? null
+      );
+    }
+
+    if (payload.rating !== undefined) {
+      ratingResult = await profileInteractionRepository.createRating(
+        profileId,
+        game.id,
+        payload.rating
+      );
+    }
+
+    return {
+      comment: commentResult ? toGameCommentPresenter(commentResult) : null,
+      rating: ratingResult ? toGameRatingPresenter(ratingResult) : null,
+    };
   }
 }
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { gameController } from "../controllers/game.controller";
-import { verifyToken } from "../middlewares/auth.middleware";
+import { verifyToken, optionalAuth } from "../middlewares/auth.middleware";
 import { validateDto } from "../middlewares/validation.middleware";
 import { asyncHandler } from "../utils/async-handler";
 import {
@@ -10,6 +10,7 @@ import {
 } from "../types/dtos/game.dto";
 import {
   CreateGameCommentDto,
+  CreateGameReviewDto,
   LikeGameDto,
   RateGameDto,
 } from "../types/dtos/game-interaction.dto";
@@ -28,8 +29,21 @@ router.get(
 );
 router.get(
   "/:gameId",
+  optionalAuth,
   validateDto(ExternalGameParamsDto, "params"),
   asyncHandler(gameController.getGame)
+);
+router.get(
+  "/:gameId/reviews",
+  validateDto(ExternalGameParamsDto, "params"),
+  asyncHandler(gameController.getGameReviews)
+);
+router.post(
+  "/:gameId/reviews",
+  verifyToken,
+  validateDto(ExternalGameParamsDto, "params"),
+  validateDto(CreateGameReviewDto),
+  asyncHandler(gameController.createGameReview)
 );
 router.post(
   "/:gameId/likes",

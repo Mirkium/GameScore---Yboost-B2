@@ -25,6 +25,8 @@ export type GameCommentPresenter = {
   readonly gameId: number;
   readonly gameSlug: string;
   readonly gameName: string;
+  readonly title: string | null;
+  readonly rating: number | null;
   readonly comment: string;
   readonly createdAt: Date;
   readonly updatedAt: Date;
@@ -35,7 +37,7 @@ export type GameRatingPresenter = {
   readonly gameId: number;
   readonly gameSlug: string;
   readonly gameName: string;
-  readonly stars: number;
+  readonly rating: number;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 };
@@ -48,6 +50,18 @@ export const toPublicProfilePresenter = (
   profilePicture: profile.avatarUrl ?? null,
   isVerified: profile.isVerified,
   score: profile.score,
+});
+
+export const toGameRatingPresenter = (
+  gameRating: GameRating
+): GameRatingPresenter => ({
+  id: gameRating.id,
+  gameId: gameRating.game.id,
+  gameSlug: gameRating.game.slug,
+  gameName: gameRating.game.name,
+  rating: gameRating.stars,
+  createdAt: gameRating.createdAt,
+  updatedAt: gameRating.updatedAt,
 });
 
 export const toLikedGamePresenter = (
@@ -68,19 +82,11 @@ export const toGameCommentPresenter = (
   gameId: gameComment.game.id,
   gameSlug: gameComment.game.slug,
   gameName: gameComment.game.name,
+  title: gameComment.title ?? null,
+  rating: gameComment.rating ?? null,
   comment: gameComment.comment,
   createdAt: gameComment.createdAt,
   updatedAt: gameComment.updatedAt,
 });
 
-export const toGameRatingPresenter = (
-  gameRating: GameRating
-): GameRatingPresenter => ({
-  id: gameRating.id,
-  gameId: gameRating.game.id,
-  gameSlug: gameRating.game.slug,
-  gameName: gameRating.game.name,
-  stars: gameRating.stars,
-  createdAt: gameRating.createdAt,
-  updatedAt: gameRating.updatedAt,
-});
+

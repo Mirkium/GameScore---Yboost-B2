@@ -100,6 +100,22 @@ export class ProfileInteractionRepository {
     return statsByGameId;
   }
 
+  public async findCommentsByGameId(gameId: number): Promise<GameComment[]> {
+    return this.commentRepository.find({
+      where: { game: { id: gameId } },
+      relations: ["author", "game"],
+      order: { createdAt: "DESC" },
+    });
+  }
+
+  public async findRatingsByGameId(gameId: number): Promise<GameRating[]> {
+    return this.ratingRepository.find({
+      where: { game: { id: gameId } },
+      relations: ["profile", "game"],
+      order: { createdAt: "DESC" },
+    });
+  }
+
   public async findLikedGamesByUsername(username: string): Promise<ProfileLikedGame[]> {
     return this.likedGameRepository.find({
       where: { profile: { username } },
@@ -155,10 +171,18 @@ export class ProfileInteractionRepository {
     return saved;
   }
 
-  public async createComment(profileId: string, gameId: number, comment: string): Promise<GameComment> {
+  public async findLikeByProfileAndGame(profileId: string, gameId: number): Promise<ProfileLikedGame | null> {
+    return this.likedGameRepository.findOne({
+      where: { profile: { id: profileId }, game: { id: gameId } },
+    });
+  }
+
+  public async createComment(profileId: string, gameId: number, comment: string, title: string | null = null, rating: number | null = null): Promise<GameComment> {
     const entity = this.commentRepository.create({
       author: { id: profileId },
       game: { id: gameId },
+      title,
+      rating,
       comment,
     });
 
@@ -200,6 +224,26 @@ export class ProfileInteractionRepository {
     }
 
     return saved;
+  }
+
+  public async createRating(profileId: string, gameId: number, stars: number): Promise<GameRating> {
+    const entity = this.ratingRepository.create({
+      profile: { id: profileId },
+      game: { id: gameId },
+      stars,
+    });
+
+    const saved = await this.ratingRepository.save(entity);
+    const reloaded = await this.ratingRepository.findOne({
+      where: { id: saved.id },
+      relations: ["game"],
+    });
+
+    if (!reloaded) {
+      throw new Error("Failed to persist game rating");
+    }
+
+    return reloaded;
   }
 }
 

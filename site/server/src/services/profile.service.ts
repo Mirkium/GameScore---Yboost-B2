@@ -26,9 +26,20 @@ export class ProfileService {
   }
 
   public async getCommentsByUsername(username: string) {
-    const comments = await profileInteractionRepository.findCommentsByUsername(username);
+    const [comments, ratings] = await Promise.all([
+      profileInteractionRepository.findCommentsByUsername(username),
+      profileInteractionRepository.findRatingsByUsername(username),
+    ]);
 
-    return comments.map(toGameCommentPresenter);
+    const ratingByGameId = new Map(ratings.map(r => [r.game.id, r.stars]));
+
+    return comments.map((c) => {
+      const p = toGameCommentPresenter(c);
+      return {
+        ...p,
+        rating: p.rating ?? ratingByGameId.get(c.game.id) ?? null,
+      };
+    });
   }
 
   public async getRatingsByUsername(username: string) {

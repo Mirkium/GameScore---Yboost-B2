@@ -5,13 +5,11 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import { Game } from "./game.entity";
 import { Profile } from "./profile.entity";
 
-@Unique("UQ_profile_game_rating", ["profile", "game"])
 @Entity({ name: "game_ratings" })
 export class GameRating {
   @PrimaryGeneratedColumn({ unsigned: true })

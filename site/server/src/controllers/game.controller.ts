@@ -7,6 +7,7 @@ import {
 } from "../types/dtos/game.dto";
 import {
   CreateGameCommentDto,
+  CreateGameReviewDto,
   LikeGameDto,
   RateGameDto,
 } from "../types/dtos/game-interaction.dto";
@@ -56,7 +57,8 @@ export class GameController {
 
   public readonly getGame = async (req: Request, res: Response): Promise<void> => {
     const params = req.params as unknown as ExternalGameParamsDto;
-    const game = await gameService.getGameById(params.gameId);
+    const userId = req.user?.id;
+    const game = await gameService.getGameById(params.gameId, userId);
     res.status(200).json(game);
   };
 
@@ -96,6 +98,25 @@ export class GameController {
     const params = req.params as unknown as ExternalGameParamsDto;
     const payload = req.body as RateGameDto;
     const result = await gameService.rateGame(userId, params.gameId, payload);
+    res.status(201).json(result);
+  };
+
+  public readonly getGameReviews = async (req: Request, res: Response): Promise<void> => {
+    const params = req.params as unknown as ExternalGameParamsDto;
+    const reviews = await gameService.getGameReviews(params.gameId);
+    res.status(200).json(reviews);
+  };
+
+  public readonly createGameReview = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const params = req.params as unknown as ExternalGameParamsDto;
+    const payload = req.body as CreateGameReviewDto;
+    const result = await gameService.createGameReview(userId, params.gameId, payload);
     res.status(201).json(result);
   };
 }

@@ -29,6 +29,12 @@ export class GameComment {
   @JoinColumn({ name: "game_id" })
   game!: Game;
 
+  @Column({ type: "varchar", length: 255, nullable: true })
+  title!: string | null;
+
+  @Column({ type: "tinyint", unsigned: true, nullable: true })
+  rating!: number | null;
+
   @Column({ type: "text" })
   comment!: string;
 
