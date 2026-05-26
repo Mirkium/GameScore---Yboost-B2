@@ -1,0 +1,245 @@
+.searchSection {
+  padding: 24px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-card);
+}
+
+.searchHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.searchQuery {
+  font-size: 1.4rem;
+  color: var(--text-main);
+}
+
+.searchQuery::before {
+  content: "Results for: ";
+  color: var(--text-muted);
+}
+
+.searchCount {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.searchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.searchCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  text-decoration: none;
+  color: var(--text-main);
+  overflow: hidden;
+  transition: var(--transition);
+  position: relative;
+}
+
+.searchCardImg {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  background: var(--bg-card);
+}
+
+.searchCardBody {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.searchCardBody h3 {
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.searchCardBody p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.searchCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.searchCard .NoteCommu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 42px;
+  height: 42px;
+  background: var(--bg-card);
+  backdrop-filter: blur(4px);
+}
+
+.searchPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.searchPagination[hidden] {
+  display: none;
+}
+
+.searchPagination span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Skeleton variant for cards */
+.sk-card .sk {
+  border-radius: 4px;
+}
+
+.sk-card .searchCardImg.sk {
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
+}
+
+.sk-card .searchCardBody h3.sk,
+.sk-card .searchCardBody p.sk {
+  height: 1em;
+  margin: 4px 0;
+}
+
+body.lightMode .searchCard .NoteCommu {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .searchCard:hover {
+    border-color: var(--primary-blue);
+    box-shadow: var(--shadow-neon-blue);
+    transform: translateY(-3px);
+  }
+}
+
+@media (max-width: 680px) {
+  .searchSection {
+    padding: 18px;
+  }
+
+  .searchGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .searchQuery {
+    font-size: 1.1rem;
+  }
+
+  .searchFilters {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filterGroup {
+    min-width: unset;
+  }
+
+  .filterActions {
+    width: 100%;
+  }
+
+  .filterActions .neonBtn {
+    flex: 1;
+  }
+}
+
+.searchFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+  flex: 1 1 130px;
+}
+
+.filterGroup label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filterGroup select,
+.filterGroup input {
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  transition: var(--transition);
+}
+
+.filterGroup select:focus,
+.filterGroup input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 2px var(--border-glow);
+}
+
+.filterRow {
+  display: flex;
+  gap: 6px;
+}
+
+.filterRow input {
+  width: 0;
+  flex: 1;
+  min-width: 50px;
+}
+
+.filterActions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-bottom: 1px;
+}
+
+.filterActions .neonBtn {
+  padding: 8px 14px;
+  min-height: 36px;
+  font-size: 0.8rem;
+}
+
+body.lightMode .filterGroup select,
+body.lightMode .filterGroup input {
+  background: var(--bg-main);
+  color: var(--text-main);
+}

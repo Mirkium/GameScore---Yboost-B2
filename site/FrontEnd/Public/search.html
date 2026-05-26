@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GameScore - search</title>
+    <meta name="description" content="GameScore search results">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./assets/css/home.main.css">
+</head>
+
+<body>
+    <header class="header">
+        <a href="./home.html" class="logo">GameScore</a>
+
+        <form class="search-bar" role="search">
+            <input type="search" class="search-input" placeholder="Search games..." aria-label="Search games">
+            <button class="search-btn" aria-label="Search">GO</button>
+        </form>
+        <nav class="auth-nav" aria-label="Authentication">
+            <a href="./connect.html" class="link signup">Sign Up</a>
+            <a href="./connect.html" class="btn login">Login</a>
+        </nav>
+    </header>
+    <main>
+        <section class="searchSection">
+            <div class="searchHeader">
+                <p class="searchQuery sk"></p>
+                <span class="searchCount sk"></span>
+            </div>
+            <form class="searchFilters" id="searchFilters">
+                <div class="filterGroup">
+                    <label for="sort">Sort</label>
+                    <select id="sort" name="sort">
+                        <option value="">Relevance</option>
+                        <option value="-rating">Rating (high to low)</option>
+                        <option value="rating">Rating (low to high)</option>
+                        <option value="-metacritic">Metacritic (high to low)</option>
+                        <option value="-released">Release date (newest)</option>
+                        <option value="released">Release date (oldest)</option>
+                        <option value="name">Name (A-Z)</option>
+                        <option value="-name">Name (Z-A)</option>
+                    </select>
+                </div>
+                <div class="filterGroup">
+                    <label>Year</label>
+                    <div class="filterRow">
+                        <input type="number" id="yearFrom" name="yearFrom" placeholder="From" min="1900" max="2030">
+                        <input type="number" id="yearTo" name="yearTo" placeholder="To" min="1900" max="2030">
+                    </div>
+                </div>
+                <div class="filterGroup">
+                    <label>Rating</label>
+                    <div class="filterRow">
+                        <input type="number" id="ratingMin" name="ratingMin" placeholder="0" min="0" max="100">
+                        <input type="number" id="ratingMax" name="ratingMax" placeholder="100" min="0" max="100">
+                    </div>
+                </div>
+                <div class="filterGroup">
+                    <label for="platform">Platform</label>
+                    <select id="platform" name="platform">
+                        <option value="">All</option>
+                        <option value="4">PC</option>
+                        <option value="187">PlayStation 5</option>
+                        <option value="18">PlayStation 4</option>
+                        <option value="186">Xbox Series S/X</option>
+                        <option value="14">Xbox One</option>
+                        <option value="7">Nintendo Switch</option>
+                        <option value="3">iOS</option>
+                        <option value="21">Android</option>
+                    </select>
+                </div>
+                <div class="filterGroup">
+                    <label for="genre">Genre</label>
+                    <select id="genre" name="genre">
+                        <option value="">All</option>
+                        <option value="4">Action</option>
+                        <option value="3">Adventure</option>
+                        <option value="5">RPG</option>
+                        <option value="2">Shooter</option>
+                        <option value="10">Strategy</option>
+                        <option value="14">Simulation</option>
+                        <option value="15">Sports</option>
+                        <option value="7">Puzzle</option>
+                    </select>
+                </div>
+                <div class="filterActions">
+                    <button type="submit" class="neonBtn">Apply</button>
+                    <button type="reset" class="neonBtn pinkBtn">Reset</button>
+                </div>
+            </form>
+            <div class="searchGrid">
+                <a class="searchCard sk-card">
+                    <div class="searchCardImg sk"></div>
+                    <div class="searchCardBody">
+                        <h3 class="sk">&nbsp;</h3>
+                        <p class="sk">&nbsp;</p>
+                    </div>
+                    <p class="NoteCommu sk"></p>
+                </a>
+                <a class="searchCard sk-card">
+                    <div class="searchCardImg sk"></div>
+                    <div class="searchCardBody">
+                        <h3 class="sk">&nbsp;</h3>
+                        <p class="sk">&nbsp;</p>
+                    </div>
+                    <p class="NoteCommu sk"></p>
+                </a>
+                <a class="searchCard sk-card">
+                    <div class="searchCardImg sk"></div>
+                    <div class="searchCardBody">
+                        <h3 class="sk">&nbsp;</h3>
+                        <p class="sk">&nbsp;</p>
+                    </div>
+                    <p class="NoteCommu sk"></p>
+                </a>
+                <a class="searchCard sk-card">
+                    <div class="searchCardImg sk"></div>
+                    <div class="searchCardBody">
+                        <h3 class="sk">&nbsp;</h3>
+                        <p class="sk">&nbsp;</p>
+                    </div>
+                    <p class="NoteCommu sk"></p>
+                </a>
+                <a class="searchCard sk-card">
+                    <div class="searchCardImg sk"></div>
+                    <div class="searchCardBody">
+                        <h3 class="sk">&nbsp;</h3>
+                        <p class="sk">&nbsp;</p>
+                    </div>
+                    <p class="NoteCommu sk"></p>
+                </a>
+                <a class="searchCard sk-card">
+                    <div class="searchCardImg sk"></div>
+                    <div class="searchCardBody">
+                        <h3 class="sk">&nbsp;</h3>
+                        <p class="sk">&nbsp;</p>
+                    </div>
+                    <p class="NoteCommu sk"></p>
+                </a>
+            </div>
+            <div class="searchPagination" hidden>
+                <button type="button" class="neonBtn" id="prevPage">Prev</button>
+                <span id="pageInfo"></span>
+                <button type="button" class="neonBtn" id="nextPage">Next</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="./assets/js/api.js"></script>
+    <script src="./assets/js/app-ui.js"></script>
+    <script src="./assets/js/score-color.js"></script>
+</body>
+
+</html>
