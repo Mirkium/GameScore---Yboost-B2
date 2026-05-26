@@ -49,5 +49,24 @@ function setupAuthSlider() {
     });
 }
 
+function setupContactForm() {
+    const form = document.querySelector("[data-contact-form]");
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const message = form.querySelector("[data-contact-message]");
+
+        if (message) {
+            message.textContent = "Message ready to send. Backend connection comes next.";
+        }
+    });
+}
+
 createBrightnessControl();
 setupAuthSlider();
+setupContactForm();

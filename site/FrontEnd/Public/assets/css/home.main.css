@@ -8,6 +8,7 @@
 @import url("./components/gamePage.css");
 @import url("./components/userPage.css");
 @import url("./components/errorPage.css");
+@import url("./components/contactPage.css");
 
 * {
     margin: 0;
@@ -56,6 +57,10 @@ a {
 .pageText {
     color: var(--text-secondary);
     line-height: 1.6;
+}
+
+body.lightMode .pageTitle {
+    text-shadow: 0 0 8px rgba(0, 124, 145, 0.12);
 }
 
 .neonBtn {

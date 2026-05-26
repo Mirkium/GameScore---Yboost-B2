@@ -19,6 +19,7 @@ footer {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    animation: rgbText 18s linear infinite;
 }
 
 .aboutFooter {
@@ -29,10 +30,19 @@ footer {
 
 .about {
     color: var(--text-secondary);
+    text-decoration: none;
 }
 
 .contact {
     color: var(--primary-blue);
+    text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .about:hover,
+    .contact:hover {
+        text-shadow: var(--shadow-neon-blue);
+    }
 }
 
 @media (max-width: 640px) {
