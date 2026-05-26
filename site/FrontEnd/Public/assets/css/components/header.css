@@ -99,7 +99,8 @@ body.lightMode .brightnessControl::before {
     text-decoration: none;
 }
 
-.btn.login {
+.btn.login,
+.btn.logout {
     padding: 6px 14px;
     border: 1px solid var(--primary-pink);
     border-radius: 8px;
@@ -109,9 +110,16 @@ body.lightMode .brightnessControl::before {
     animation: softRgbPulse 18s ease-in-out infinite;
 }
 
+.btn.logout {
+    font: inherit;
+    cursor: pointer;
+    background: transparent;
+}
+
 /* HOVER uniquement desktop */
 @media (hover: hover) and (pointer: fine) {
-    .btn.login:hover {
+    .btn.login:hover,
+    .btn.logout:hover {
         background: rgba(255, 43, 214, 0.1);
         box-shadow: var(--shadow-neon-pink);
     }
@@ -153,7 +161,8 @@ body.lightMode .brightnessControl::before {
     }
 
     .link,
-    .btn.login {
+    .btn.login,
+    .btn.logout {
         text-align: center;
     }
 }

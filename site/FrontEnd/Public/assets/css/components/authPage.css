@@ -5,7 +5,7 @@
 
 .authShell {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 420px;
+    grid-template-columns: minmax(280px, 0.78fr) minmax(360px, 420px);
     gap: 30px;
     align-items: stretch;
 }
@@ -26,12 +26,25 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 30px;
+    gap: 18px;
     background-image:
         linear-gradient(145deg, rgba(5, 8, 22, 0.86), rgba(15, 23, 51, 0.78)),
         url("../../img/Image-not-found.png");
     background-size: cover;
     background-position: center;
+}
+
+.authSide .sectionTitle {
+    padding: 0;
+    font-size: 1.15rem;
+}
+
+.authSide .pageTitle {
+    font-size: 1.85rem;
+}
+
+.authSide .pageText {
+    font-size: 0.92rem;
 }
 
 body.lightMode .authSide {
@@ -42,12 +55,12 @@ body.lightMode .authSide {
 
 .authStats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
 }
 
 .authStat {
-    padding: 14px;
+    padding: 10px;
     border: 1px solid var(--border-soft);
     border-radius: 8px;
     background: rgba(5, 8, 22, 0.7);
@@ -60,7 +73,7 @@ body.lightMode .authStat {
 .authStat strong {
     display: block;
     color: var(--primary-blue);
-    font-size: 1.3rem;
+    font-size: 1.05rem;
 }
 
 .authStat span {
@@ -173,6 +186,10 @@ body.lightMode .authStat {
 @media (max-width: 980px) {
     .authShell {
         grid-template-columns: 1fr;
+    }
+
+    .authSide {
+        min-height: 260px;
     }
 }
 

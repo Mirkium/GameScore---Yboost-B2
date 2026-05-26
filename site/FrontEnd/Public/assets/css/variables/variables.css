@@ -47,14 +47,19 @@ body.lightMode {
     --bg-glass: rgba(5, 8, 22, 0.04);
 
     --text-main: #111827;
-    --text-secondary: #46516a;
-    --text-muted: #6b7280;
+    --primary-pink: #b91594;
+    --primary-blue: #007c91;
+    --primary-purple: #563bd6;
+
+    --text-secondary: #334155;
+    --text-muted: #536179;
 
     --border-glow: rgba(0, 155, 190, 0.32);
     --border-soft: rgba(17, 24, 39, 0.13);
 
-    --shadow-neon-blue: 0 0 10px rgba(0, 155, 190, 0.28);
-    --shadow-neon-pink: 0 0 10px rgba(210, 30, 170, 0.24);
+    --shadow-neon-blue: 0 0 10px rgba(0, 124, 145, 0.28);
+    --shadow-neon-pink: 0 0 10px rgba(185, 21, 148, 0.24);
 
+    --gradient-primary: linear-gradient(90deg, #b91594, #007c91);
     --gradient-card: linear-gradient(145deg, #ffffff, #edf3fb);
 }
