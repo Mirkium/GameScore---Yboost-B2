@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GameScore - login</title>
+    <meta name="description" content="Connectez-vous a votre compte GameScore">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./assets/css/home.main.css">
+</head>
+
+<body>
+    <header class="header">
+        <a href="./home.html" class="logo">GameScore</a>
+
+        <form class="search-bar" role="search">
+            <input type="search" class="search-input" placeholder="Search games..." aria-label="Rechercher un jeu">
+            <button class="search-btn" aria-label="Lancer la recherche">GO</button>
+        </form>
+        <nav class="auth-nav" aria-label="Navigation utilisateur">
+            <a href="./home.html" class="link signup">Home</a>
+            <a href="./user.html" class="btn login">Profil</a>
+        </nav>
+    </header>
+
+    <main class="authPage">
+        <section class="authShell">
+            <div class="authSide">
+                <div class="pageIntro">
+                    <p class="sectionTitle">Join the arena</p>
+                    <h1 class="pageTitle">Track your scores and share your reviews.</h1>
+                    <p class="pageText">Create your GameScore profile, keep your favorite games, and compare your notes with the community.</p>
+                </div>
+                <div class="authStats">
+                    <div class="authStat">
+                        <strong>1.2K</strong>
+                        <span>reviews</span>
+                    </div>
+                    <div class="authStat">
+                        <strong>340</strong>
+                        <span>games</span>
+                    </div>
+                    <div class="authStat">
+                        <strong>97</strong>
+                        <span>top score</span>
+                    </div>
+                </div>
+            </div>
+
+            <section class="authPanel" aria-labelledby="login-title">
+                <div class="authSlider">
+                    <div class="authTrack">
+                        <div class="authSlide">
+                            <div class="pageIntro">
+                                <h2 class="pageTitle" id="login-title">Login</h2>
+                                <p class="pageText">Welcome back, your next review is waiting.</p>
+                            </div>
+
+                            <form class="authForm">
+                                <div class="fieldGroup">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" placeholder="player@gamescore.com" required>
+                                </div>
+                                <div class="fieldGroup">
+                                    <label for="password">Password</label>
+                                    <input type="password" id="password" name="password" placeholder="********" required>
+                                </div>
+                                <div class="formRow">
+                                    <label class="checkLine">
+                                        <input type="checkbox" name="remember">
+                                        Remember me
+                                    </label>
+                                    <a href="#" class="mutedLink">Forgot password?</a>
+                                </div>
+                                <button class="neonBtn pinkBtn" type="submit">Login</button>
+                            </form>
+
+                            <p class="authSwitch">No account yet? <button type="button" data-auth-mode="register">Create one</button></p>
+                        </div>
+
+                        <div class="authSlide">
+                            <div class="pageIntro">
+                                <h2 class="pageTitle">Register</h2>
+                                <p class="pageText">Create your profile and start rating your favorite games.</p>
+                            </div>
+
+                            <form class="authForm">
+                                <div class="fieldGroup">
+                                    <label for="username">Username</label>
+                                    <input type="text" id="username" name="username" placeholder="CyberPlayer" required>
+                                </div>
+                                <div class="fieldGroup">
+                                    <label for="register-email">Email</label>
+                                    <input type="email" id="register-email" name="register-email" placeholder="player@gamescore.com" required>
+                                </div>
+                                <div class="fieldGroup">
+                                    <label for="register-password">Password</label>
+                                    <input type="password" id="register-password" name="register-password" placeholder="********" required>
+                                </div>
+                                <button class="neonBtn pinkBtn" type="submit">Create Account</button>
+                            </form>
+
+                            <p class="authSwitch">Already registered? <button type="button" data-auth-mode="login">Back to login</button></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+    <script src="./assets/js/app-ui.js"></script>
+</body>
+
+</html>

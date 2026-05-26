@@ -1,0 +1,168 @@
+@import url("./variables/variables.css");
+@import url("./components/header.css");
+@import url("./components/gamePresent.css");
+@import url("./components/topGame.css");
+@import url("./components/recentReview.css");
+@import url("./components/footer.css");
+@import url("./components/authPage.css");
+@import url("./components/gamePage.css");
+@import url("./components/userPage.css");
+@import url("./components/errorPage.css");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-main);
+    font-family: "Orbitron", sans-serif;
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background: var(--brightness-overlay-color, #000000);
+    opacity: var(--brightness-overlay-opacity, 0);
+    transition: opacity var(--transition), background var(--transition);
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 50px;
+}
+
+.sectionTitle {
+    padding: 20px;
+    font-size: 2rem;
+    color: rgb(227, 226, 227);
+    text-shadow: 0 0 10px rgba(227, 226, 227, 0.7);
+}
+
+a {
+    color: inherit;
+}
+
+.pageIntro {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pageTitle {
+    color: var(--text-main);
+    font-size: 2.4rem;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+}
+
+.pageText {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.neonBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--primary-blue);
+    background: rgba(0, 229, 255, 0.08);
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+    animation: rgbBorder 14s linear infinite;
+}
+
+.pinkBtn {
+    border-color: var(--primary-pink);
+    background: rgba(255, 43, 214, 0.08);
+    color: var(--primary-pink);
+}
+
+.mutedLink {
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.TopGame,
+.authPanel,
+.gameHero,
+.contentPanel,
+.reviewForm,
+.profileHero,
+.profilePanel,
+.errorBox {
+    animation: rgbBorder 22s linear infinite;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .neonBtn:hover {
+        box-shadow: var(--shadow-neon-blue);
+        transform: translateY(-2px);
+    }
+
+    .pinkBtn:hover {
+        box-shadow: var(--shadow-neon-pink);
+    }
+}
+
+@media (max-width: 900px) {
+    main {
+        padding: 28px 18px;
+    }
+
+    .pageTitle {
+        font-size: 2rem;
+    }
+}
+
+@font-face {
+    font-family: "Orbitron";
+    src: url("../Font/Orbitron/Orbitron-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+}
+
+@keyframes rgbBorder {
+    0% {
+        border-color: #00e5ff;
+        box-shadow: 0 0 8px rgba(0, 229, 255, 0.28);
+    }
+
+    33% {
+        border-color: #ff2bd6;
+        box-shadow: 0 0 8px rgba(255, 43, 214, 0.28);
+    }
+
+    66% {
+        border-color: #7a5cff;
+        box-shadow: 0 0 8px rgba(122, 92, 255, 0.28);
+    }
+
+    100% {
+        border-color: #00e5ff;
+        box-shadow: 0 0 8px rgba(0, 229, 255, 0.28);
+    }
+}
+
+@keyframes rgbText {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}

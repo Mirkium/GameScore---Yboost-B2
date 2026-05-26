@@ -1,0 +1,175 @@
+.authPage {
+    min-height: calc(100vh - 170px);
+    justify-content: center;
+}
+
+.authShell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 30px;
+    align-items: stretch;
+}
+
+.authPanel,
+.authSide {
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg-card);
+    padding: 28px;
+}
+
+.authPanel {
+    overflow: hidden;
+}
+
+.authSide {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 30px;
+    background-image:
+        linear-gradient(145deg, rgba(5, 8, 22, 0.86), rgba(15, 23, 51, 0.78)),
+        url("../../img/Image-not-found.png");
+    background-size: cover;
+    background-position: center;
+}
+
+.authStats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.authStat {
+    padding: 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: rgba(5, 8, 22, 0.7);
+}
+
+.authStat strong {
+    display: block;
+    color: var(--primary-blue);
+    font-size: 1.3rem;
+}
+
+.authStat span {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.authForm {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.authSlider {
+    overflow: hidden;
+}
+
+.authTrack {
+    display: grid;
+    grid-template-columns: repeat(2, 50%);
+    width: 200%;
+    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.authPanel.registerMode .authTrack {
+    transform: translateX(-50%);
+}
+
+.authSlide {
+    min-width: 0;
+    padding-right: 2px;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fieldGroup label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.fieldGroup input,
+.fieldGroup textarea,
+.fieldGroup select {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-main);
+    font: inherit;
+    outline: none;
+}
+
+.fieldGroup textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.fieldGroup input:focus,
+.fieldGroup textarea:focus,
+.fieldGroup select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: var(--shadow-neon-blue);
+}
+
+.formRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.checkLine {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkLine input {
+    accent-color: var(--primary-pink);
+}
+
+.authSwitch {
+    margin-top: 18px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.authSwitch a {
+    color: var(--primary-pink);
+    text-decoration: none;
+}
+
+.authSwitch button {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--primary-pink);
+    font: inherit;
+    cursor: pointer;
+}
+
+@media (max-width: 980px) {
+    .authShell {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .authStats,
+    .formRow {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,76 @@
+.gamePresent {
+    position: relative;
+    padding: 80px 40px;
+    min-height: 500px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+
+    /* IMAGE + OVERLAY */
+    background-image:
+        linear-gradient(90deg, rgba(5, 8, 22, 0.9) 40%, rgba(5, 8, 22, 0.3)),
+        url("../../img/Image-not-found.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.titleGame {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.titleGamePresent {
+    font-size: 4rem;
+    color: rgb(227, 226, 227);
+    text-shadow: 0 0 10px rgba(227, 226, 227, 0.7);
+}
+
+
+
+.gameDesc {
+    max-width: 400px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.readReview {
+    display: inline-block;
+    color: var(--primary-blue);
+    border: 1px solid var(--primary-blue);
+    padding: 10px 20px;
+    border-radius: 8px;
+    width: 200px;
+    text-align: center;
+    text-decoration: none;
+    transition: var(--transition);
+    animation: rgbBorder 15s linear infinite;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .readReview:hover {
+        box-shadow: var(--shadow-neon-blue);
+        background: rgba(0, 229, 255, 0.1);
+    }
+}
+
+@media (max-width: 768px) {
+    .gamePresent {
+        padding: 40px 20px;
+    }
+
+    .titleGamePresent {
+        font-size: 2.5rem;
+    }
+
+    .gameDesc {
+        max-width: 100%;
+    }
+}

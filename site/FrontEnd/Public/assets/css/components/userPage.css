@@ -1,0 +1,119 @@
+.profileHero {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: center;
+    padding: 26px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--gradient-card);
+}
+
+.avatar {
+    width: 92px;
+    height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--primary-pink);
+    border-radius: 50%;
+    color: var(--primary-pink);
+    background: rgba(255, 43, 214, 0.08);
+    font-size: 2rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-neon-pink);
+}
+
+.profileName {
+    font-size: 2rem;
+}
+
+.profileTag {
+    margin-top: 6px;
+    color: var(--text-secondary);
+}
+
+.profileStats {
+    display: flex;
+    gap: 12px;
+}
+
+.profileStat {
+    min-width: 92px;
+    padding: 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    text-align: center;
+}
+
+.profileStat strong {
+    display: block;
+    color: var(--primary-blue);
+    font-size: 1.4rem;
+}
+
+.profileStat span {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.profileGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.profilePanel {
+    padding: 24px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg-card);
+}
+
+.profilePanel h2 {
+    margin-bottom: 18px;
+    color: var(--primary-blue);
+}
+
+.activityList,
+.favoriteList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.activityItem,
+.favoriteItem {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+}
+
+.favoriteItem img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.activityItem p,
+.favoriteItem p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 960px) {
+    .profileHero,
+    .profileGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .profileStats {
+        flex-wrap: wrap;
+    }
+}

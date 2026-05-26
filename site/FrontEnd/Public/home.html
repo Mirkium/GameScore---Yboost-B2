@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GameScore - home</title>
+    <meta name="description" content="GameScore home page">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./assets/css/home.main.css">
+</head>
+
+<body>
+    <header class="header">
+        <a href="./home.html" class="logo">GameScore</a>
+
+        <form class="search-bar" role="search">
+            <input type="search" class="search-input" placeholder="Search games..." aria-label="Rechercher un jeu">
+            <button class="search-btn" aria-label="Lancer la recherche">GO</button>
+        </form>
+        <nav class="auth-nav" aria-label="Authentification">
+            <a href="./connect.html" class="link signup">Sign Up</a>
+            <a href="./connect.html" class="btn login">Login</a>
+        </nav>
+    </header>
+    <main>
+        <div class="gamePresent">
+            <div class="titleGame">
+                <h1 class="titleGamePresent">The Last Of Us : Part 1</h1>
+            </div>
+            <p class="gameDesc">An open-world, action-adventure story set in a dystopian future.</p>
+            <a href="./game.html" class="readReview">Read Review</a>
+            <p class="NoteCommu">97</p>
+        </div>
+
+        <div class="TopGame">
+            <p class="sectionTitle">Top Games Right Now</p>
+            <div class="carrousel">
+                <a href="./game.html" class="gameSlide">
+                    <img src="./assets/img/Image-not-found.png" alt="Cyberpunk 2077" class="gameImg">
+                    <p class="gameTitle">Cyberpunk 2077</p>
+                    <p class="NoteCommu">30</p>
+                </a>
+                <a href="./game.html" class="gameSlide">
+                    <img src="./assets/img/Image-not-found.png" alt="The Last Of Us Part 2" class="gameImg">
+                    <p class="gameTitle">The Last Of Us Part 2</p>
+                    <p class="NoteCommu">98</p>
+                </a>
+                <a href="./game.html" class="gameSlide">
+                    <img src="./assets/img/Image-not-found.png" alt="Ghost of Tsushima" class="gameImg">
+                    <p class="gameTitle">Ghost of Tsushima</p>
+                    <p class="NoteCommu">12</p>
+                </a>
+                <a href="./game.html" class="gameSlide">
+                    <img src="./assets/img/Image-not-found.png" alt="Doom Eternal" class="gameImg">
+                    <p class="gameTitle">Doom Eternal</p>
+                    <p class="NoteCommu">80</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="recentReview">
+            <p class="sectionTitle">Recent Review</p>
+            <div class="recentGameReview">
+                <img src="./assets/img/Image-not-found.png" alt="Hades" class="recentGameIMG">
+                <div class="recentGameTXT">
+                    <h3 class="recentGameTitle">Hades</h3>
+                    <p class="recentGameDesc">Game description not write at today</p>
+                </div>
+                <h2 class="recentGameNote">88</h2>
+            </div>
+            <div class="recentGameReview">
+                <img src="./assets/img/Image-not-found.png" alt="Among Us" class="recentGameIMG">
+                <div class="recentGameTXT">
+                    <h3 class="recentGameTitle">Among Us</h3>
+                    <p class="recentGameDesc">Game description not write at today</p>
+                </div>
+                <h2 class="recentGameNote">78</h2>
+            </div>
+            <div class="recentGameReview">
+                <img src="./assets/img/Image-not-found.png" alt="Ori and the Will of the Wisps" class="recentGameIMG">
+                <div class="recentGameTXT">
+                    <h3 class="recentGameTitle">Ori and the Will of the Wisps</h3>
+                    <p class="recentGameDesc">Game description not write at today</p>
+                </div>
+                <h2 class="recentGameNote">90</h2>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <h2 class="titleFooter">GameScore</h2>
+        <div class="aboutFooter">
+            <p class="about">About</p>
+            <p class="contact">Contact</p>
+        </div>
+    </footer>
+
+    <script src="./assets/js/app-ui.js"></script>
+    <script src="./assets/js/score-color.js"></script>
+</body>
+
+</html>

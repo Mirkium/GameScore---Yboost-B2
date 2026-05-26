@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GameScore - profil</title>
+    <meta name="description" content="Profil utilisateur GameScore">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./assets/css/home.main.css">
+</head>
+
+<body>
+    <header class="header">
+        <a href="./home.html" class="logo">GameScore</a>
+
+        <form class="search-bar" role="search">
+            <input type="search" class="search-input" placeholder="Search games..." aria-label="Rechercher un jeu">
+            <button class="search-btn" aria-label="Lancer la recherche">GO</button>
+        </form>
+        <nav class="auth-nav" aria-label="Navigation utilisateur">
+            <a href="./home.html" class="link signup">Home</a>
+            <a href="./connect.html" class="btn login">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="profileHero">
+            <div class="avatar">GS</div>
+            <div>
+                <h1 class="profileName">GameScore Player</h1>
+                <p class="profileTag">RPG enjoyer, indie hunter, review collector.</p>
+            </div>
+            <div class="profileStats">
+                <div class="profileStat">
+                    <strong>24</strong>
+                    <span>reviews</span>
+                </div>
+                <div class="profileStat">
+                    <strong>87</strong>
+                    <span>avg score</span>
+                </div>
+                <div class="profileStat">
+                    <strong>12</strong>
+                    <span>favorites</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="profileGrid">
+            <div class="profilePanel">
+                <h2>Recent Activity</h2>
+                <div class="activityList">
+                    <article class="activityItem">
+                        <p class="smallScore">90</p>
+                        <div>
+                            <h3>Ori and the Will of the Wisps</h3>
+                            <p>Added a new review.</p>
+                        </div>
+                    </article>
+                    <article class="activityItem">
+                        <p class="smallScore">78</p>
+                        <div>
+                            <h3>Among Us</h3>
+                            <p>Updated community score.</p>
+                        </div>
+                    </article>
+                    <article class="activityItem">
+                        <p class="smallScore">88</p>
+                        <div>
+                            <h3>Hades</h3>
+                            <p>Saved to favorites.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <div class="profilePanel">
+                <h2>Favorite Games</h2>
+                <div class="favoriteList">
+                    <a href="./game.html" class="favoriteItem">
+                        <img src="./assets/img/Image-not-found.png" alt="The Last Of Us Part 1">
+                        <div>
+                            <h3>The Last Of Us : Part 1</h3>
+                            <p>Community score 97</p>
+                        </div>
+                    </a>
+                    <a href="./game.html" class="favoriteItem">
+                        <img src="./assets/img/Image-not-found.png" alt="Ghost of Tsushima">
+                        <div>
+                            <h3>Ghost of Tsushima</h3>
+                            <p>Community score 82</p>
+                        </div>
+                    </a>
+                    <a href="./game.html" class="favoriteItem">
+                        <img src="./assets/img/Image-not-found.png" alt="Doom Eternal">
+                        <div>
+                            <h3>Doom Eternal</h3>
+                            <p>Community score 80</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="./assets/js/app-ui.js"></script>
+    <script src="./assets/js/score-color.js"></script>
+</body>
+
+</html>

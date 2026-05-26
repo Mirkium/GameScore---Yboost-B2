@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GameScore - game</title>
+    <meta name="description" content="Page detail d'un jeu sur GameScore">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./assets/css/home.main.css">
+</head>
+
+<body>
+    <header class="header">
+        <a href="./home.html" class="logo">GameScore</a>
+
+        <form class="search-bar" role="search">
+            <input type="search" class="search-input" placeholder="Search games..." aria-label="Rechercher un jeu">
+            <button class="search-btn" aria-label="Lancer la recherche">GO</button>
+        </form>
+        <nav class="auth-nav" aria-label="Navigation utilisateur">
+            <a href="./connect.html" class="link signup">Sign Up</a>
+            <a href="./user.html" class="btn login">Profil</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="gameHero">
+            <img src="./assets/img/Image-not-found.png" alt="The Last Of Us Part 1" class="gameCover">
+            <div class="gameInfo">
+                <div class="pageIntro">
+                    <h1 class="pageTitle">The Last Of Us : Part 1</h1>
+                    <p class="pageText">An action-adventure survival story about trust, danger and difficult choices in a broken world.</p>
+                </div>
+                <div class="gameMeta">
+                    <span class="metaTag">Action</span>
+                    <span class="metaTag">Adventure</span>
+                    <span class="metaTag">Naughty Dog</span>
+                    <span class="metaTag">2022</span>
+                </div>
+                <a href="#review-form" class="neonBtn">Write Review</a>
+            </div>
+            <div class="scoreBox">
+                <p class="gameScore">97</p>
+            </div>
+        </section>
+
+        <section class="gameContent">
+            <div class="contentPanel">
+                <h2>Community Reviews</h2>
+                <div class="reviewList">
+                    <article class="reviewItem">
+                        <div>
+                            <h3>NeoPlayer</h3>
+                            <p>Great atmosphere, clean pacing, and characters that stay with you after the credits.</p>
+                        </div>
+                        <p class="smallScore">94</p>
+                    </article>
+                    <article class="reviewItem">
+                        <div>
+                            <h3>PixelRunner</h3>
+                            <p>The gameplay is classic, but the remake makes every scene feel sharper and heavier.</p>
+                        </div>
+                        <p class="smallScore">88</p>
+                    </article>
+                    <article class="reviewItem">
+                        <div>
+                            <h3>CyberLena</h3>
+                            <p>A strong story game, even if some fights feel a bit too familiar.</p>
+                        </div>
+                        <p class="smallScore">76</p>
+                    </article>
+                </div>
+            </div>
+
+            <form class="reviewForm" id="review-form">
+                <h2>Your Review</h2>
+                <div class="authForm">
+                    <div class="fieldGroup">
+                        <label for="review-title">Title</label>
+                        <input type="text" id="review-title" name="review-title" placeholder="Short review title">
+                    </div>
+                    <div class="fieldGroup">
+                        <label for="review-score">Score</label>
+                        <input type="number" id="review-score" name="review-score" min="0" max="100" placeholder="0 - 100">
+                    </div>
+                    <div class="fieldGroup">
+                        <label for="review-text">Review</label>
+                        <textarea id="review-text" name="review-text" placeholder="What did you think?"></textarea>
+                    </div>
+                    <button type="submit" class="neonBtn pinkBtn">Publish</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="./assets/js/app-ui.js"></script>
+    <script src="./assets/js/score-color.js"></script>
+</body>
+
+</html>

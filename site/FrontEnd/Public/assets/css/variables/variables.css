@@ -1,0 +1,41 @@
+:root {
+    /* BACKGROUNDS */
+    --bg-main: #050816;
+    --bg-secondary: #0b1023;
+    --bg-card: #0f1733;
+    --bg-glass: rgba(255, 255, 255, 0.05);
+
+    /* PRIMARY COLORS (NEON) */
+    --primary-pink: #ff2bd6;
+    --primary-blue: #00e5ff;
+    --primary-purple: #7a5cff;
+
+    /* TEXT */
+    --text-main: #ffffff;
+    --text-secondary: #aab0d5;
+    --text-muted: #6c7293;
+
+    /* ACCENTS */
+    --accent-cyan: #00f0ff;
+    --accent-violet: #b026ff;
+
+    /* SCORE COLORS */
+    --score-high: #00e5ff;
+    --score-mid: #ff2bd6;
+    --score-low: #ff7a00;
+
+    /* BORDERS & GLOW */
+    --border-glow: rgba(0, 229, 255, 0.4);
+    --border-soft: rgba(255, 255, 255, 0.1);
+
+    /* SHADOWS */
+    --shadow-neon-blue: 0 0 10px rgba(0, 229, 255, 0.6);
+    --shadow-neon-pink: 0 0 10px rgba(255, 43, 214, 0.6);
+
+    /* GRADIENTS */
+    --gradient-primary: linear-gradient(90deg, #ff2bd6, #00e5ff);
+    --gradient-card: linear-gradient(145deg, #0b1023, #050816);
+
+    /* TRANSITIONS */
+    --transition: 0.3s ease;
+}
