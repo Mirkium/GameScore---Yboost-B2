@@ -6,6 +6,7 @@
     padding: 1rem 2rem;
     background: var(--bg-main);
     border-bottom: 1px solid var(--border-soft);
+    transition: background var(--transition), border-color var(--transition);
 }
 
 /* LOGO */
@@ -64,24 +65,33 @@
 }
 
 .brightnessControl {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
+    gap: 7px;
+    min-height: 34px;
+    padding: 6px 12px;
     border: 1px solid var(--border-soft);
     border-radius: 999px;
     background: var(--bg-secondary);
-}
-
-.brightnessControl label {
     color: var(--text-secondary);
+    font: inherit;
     font-size: 0.78rem;
+    cursor: pointer;
+    transition: var(--transition);
 }
 
-.brightnessControl input {
-    width: 88px;
-    accent-color: var(--primary-blue);
-    cursor: pointer;
+.brightnessControl::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-blue);
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.55);
+}
+
+body.lightMode .brightnessControl::before {
+    background: var(--primary-pink);
+    box-shadow: 0 0 8px rgba(255, 43, 214, 0.4);
 }
 
 .link {
@@ -96,7 +106,7 @@
     color: var(--primary-pink);
     text-decoration: none;
     transition: var(--transition);
-    animation: rgbBorder 16s linear infinite;
+    animation: softRgbPulse 18s ease-in-out infinite;
 }
 
 /* HOVER uniquement desktop */
@@ -126,5 +136,24 @@
     .auth-nav {
         justify-content: space-between;
         flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 520px) {
+    .auth-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .brightnessControl {
+        grid-column: 1 / -1;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .link,
+    .btn.login {
+        text-align: center;
     }
 }

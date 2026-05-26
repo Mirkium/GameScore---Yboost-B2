@@ -1,19 +1,15 @@
-const brightnessStorageKey = "gamescore-brightness";
+const themeStorageKey = "gamescore-theme";
 
-function applyBrightness(value) {
-    const parsedValue = Number(value);
-    const brightness = Number.isNaN(parsedValue) ? 100 : Math.max(60, Math.min(140, parsedValue));
-    const root = document.documentElement;
+function applyTheme(theme) {
+    const nextTheme = theme === "light" ? "light" : "dark";
 
-    if (brightness >= 100) {
-        root.style.setProperty("--brightness-overlay-color", "#ffffff");
-        root.style.setProperty("--brightness-overlay-opacity", ((brightness - 100) / 40 * 0.18).toFixed(3));
-    } else {
-        root.style.setProperty("--brightness-overlay-color", "#000000");
-        root.style.setProperty("--brightness-overlay-opacity", ((100 - brightness) / 40 * 0.45).toFixed(3));
-    }
+    document.body.classList.toggle("lightMode", nextTheme === "light");
+    localStorage.setItem(themeStorageKey, nextTheme);
 
-    localStorage.setItem(brightnessStorageKey, String(brightness));
+    document.querySelectorAll(".brightnessControl").forEach((button) => {
+        button.textContent = nextTheme === "light" ? "Dark mode" : "Light mode";
+        button.setAttribute("aria-pressed", String(nextTheme === "light"));
+    });
 }
 
 function createBrightnessControl() {
@@ -23,19 +19,19 @@ function createBrightnessControl() {
         return;
     }
 
-    const savedValue = localStorage.getItem(brightnessStorageKey) || "100";
-    const wrapper = document.createElement("div");
-    wrapper.className = "brightnessControl";
-    wrapper.innerHTML = `
-        <label for="site-brightness">Light</label>
-        <input id="site-brightness" type="range" min="60" max="140" value="${savedValue}" aria-label="Luminosite du site">
-    `;
+    const savedTheme = localStorage.getItem(themeStorageKey) || "dark";
+    const button = document.createElement("button");
+    button.className = "brightnessControl";
+    button.type = "button";
+    button.setAttribute("aria-label", "Changer le theme du site");
 
-    nav.prepend(wrapper);
+    nav.prepend(button);
 
-    const input = wrapper.querySelector("input");
-    applyBrightness(input.value);
-    input.addEventListener("input", () => applyBrightness(input.value));
+    applyTheme(savedTheme);
+    button.addEventListener("click", () => {
+        const currentTheme = document.body.classList.contains("lightMode") ? "light" : "dark";
+        applyTheme(currentTheme === "light" ? "dark" : "light");
+    });
 }
 
 function setupAuthSlider() {

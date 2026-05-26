@@ -67,3 +67,28 @@
         box-shadow: var(--shadow-neon-blue);
     }
 }
+
+@media (max-width: 560px) {
+    .recentReview {
+        margin-top: 20px;
+        padding: 0;
+    }
+
+    .recentGameReview {
+        align-items: flex-start;
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .recentGameIMG {
+        width: 64px;
+        height: 64px;
+    }
+
+    .recentGameNote {
+        padding: 5px 9px;
+        font-size: 1rem;
+    }
+}

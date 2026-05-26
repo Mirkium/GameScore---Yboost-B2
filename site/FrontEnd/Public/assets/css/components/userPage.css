@@ -117,3 +117,35 @@
         flex-wrap: wrap;
     }
 }
+
+@media (max-width: 560px) {
+    .profileHero,
+    .profilePanel {
+        padding: 18px;
+    }
+
+    .avatar {
+        width: 76px;
+        height: 76px;
+        font-size: 1.5rem;
+    }
+
+    .profileName {
+        font-size: 1.55rem;
+    }
+
+    .profileStats {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .activityItem,
+    .favoriteItem {
+        align-items: flex-start;
+    }
+
+    .favoriteItem img {
+        width: 56px;
+        height: 56px;
+    }
+}

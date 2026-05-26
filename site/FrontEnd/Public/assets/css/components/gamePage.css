@@ -127,6 +127,18 @@
     background: var(--bg-card);
 }
 
+body.lightMode .gameHero {
+    background:
+        linear-gradient(90deg, rgba(244, 247, 251, 0.95), rgba(232, 237, 246, 0.76)),
+        url("../../img/Image-not-found.png");
+    background-size: cover;
+    background-position: center;
+}
+
+body.lightMode .metaTag {
+    background: rgba(17, 24, 39, 0.05);
+}
+
 @media (max-width: 980px) {
     .gameHero,
     .gameContent {
@@ -139,5 +151,32 @@
 
     .scoreBox {
         justify-content: flex-start;
+    }
+}
+
+@media (max-width: 620px) {
+    .gameHero,
+    .contentPanel,
+    .reviewForm {
+        padding: 18px;
+    }
+
+    .gameCover {
+        max-width: none;
+    }
+
+    .gameScore {
+        width: 68px;
+        height: 68px;
+        font-size: 1.55rem;
+    }
+
+    .reviewItem {
+        grid-template-columns: 1fr;
+    }
+
+    .smallScore {
+        width: 42px;
+        height: 42px;
     }
 }

@@ -80,3 +80,18 @@
         min-width: 180px;
     }
 }
+
+@media (max-width: 520px) {
+    .carrousel {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .gameSlide {
+        min-width: 72vw;
+    }
+
+    .gameImg {
+        height: 130px;
+    }
+}

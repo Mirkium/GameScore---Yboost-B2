@@ -39,3 +39,22 @@
     /* TRANSITIONS */
     --transition: 0.3s ease;
 }
+
+body.lightMode {
+    --bg-main: #f4f7fb;
+    --bg-secondary: #e8edf6;
+    --bg-card: #ffffff;
+    --bg-glass: rgba(5, 8, 22, 0.04);
+
+    --text-main: #111827;
+    --text-secondary: #46516a;
+    --text-muted: #6b7280;
+
+    --border-glow: rgba(0, 155, 190, 0.32);
+    --border-soft: rgba(17, 24, 39, 0.13);
+
+    --shadow-neon-blue: 0 0 10px rgba(0, 155, 190, 0.28);
+    --shadow-neon-pink: 0 0 10px rgba(210, 30, 170, 0.24);
+
+    --gradient-card: linear-gradient(145deg, #ffffff, #edf3fb);
+}

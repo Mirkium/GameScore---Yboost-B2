@@ -21,6 +21,12 @@
     overflow: hidden;
 }
 
+body.lightMode .gamePresent {
+    background-image:
+        linear-gradient(90deg, rgba(244, 247, 251, 0.92) 40%, rgba(244, 247, 251, 0.36)),
+        url("../../img/Image-not-found.png");
+}
+
 .titleGame {
     display: flex;
     flex-direction: column;
@@ -51,7 +57,7 @@
     text-align: center;
     text-decoration: none;
     transition: var(--transition);
-    animation: rgbBorder 15s linear infinite;
+    animation: softRgbPulse 18s ease-in-out infinite;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -64,6 +70,7 @@
 @media (max-width: 768px) {
     .gamePresent {
         padding: 40px 20px;
+        min-height: 360px;
     }
 
     .titleGamePresent {
@@ -72,5 +79,19 @@
 
     .gameDesc {
         max-width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .gamePresent {
+        min-height: 320px;
+    }
+
+    .titleGamePresent {
+        font-size: 2rem;
+    }
+
+    .readReview {
+        width: 100%;
     }
 }

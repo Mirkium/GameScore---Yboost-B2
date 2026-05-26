@@ -34,6 +34,12 @@
     background-position: center;
 }
 
+body.lightMode .authSide {
+    background-image:
+        linear-gradient(145deg, rgba(244, 247, 251, 0.88), rgba(232, 237, 246, 0.78)),
+        url("../../img/Image-not-found.png");
+}
+
 .authStats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -45,6 +51,10 @@
     border: 1px solid var(--border-soft);
     border-radius: 8px;
     background: rgba(5, 8, 22, 0.7);
+}
+
+body.lightMode .authStat {
+    background: rgba(255, 255, 255, 0.72);
 }
 
 .authStat strong {
@@ -167,9 +177,22 @@
 }
 
 @media (max-width: 560px) {
+    .authPanel,
+    .authSide {
+        padding: 18px;
+    }
+
     .authStats,
     .formRow {
         grid-template-columns: 1fr;
         flex-direction: column;
+    }
+
+    .authStat {
+        padding: 12px;
+    }
+
+    .authForm {
+        gap: 14px;
     }
 }
