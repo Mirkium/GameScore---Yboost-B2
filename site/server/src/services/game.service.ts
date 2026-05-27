@@ -340,9 +340,7 @@ export class GameService {
   }
 
   public async getGameReviews(gameId: number) {
-    const game = await gameSyncService.resolveGame(gameId);
-
-    const reviews = await profileInteractionRepository.findReviewsByGameId(game.id);
+    const reviews = await profileInteractionRepository.findReviewsByGameId(gameId);
 
     const result: Array<{
       profileId: string;
