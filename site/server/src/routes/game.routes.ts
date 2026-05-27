@@ -9,10 +9,8 @@ import {
   PopularGamesQueryDto,
 } from "../types/dtos/game.dto";
 import {
-  CreateGameCommentDto,
   CreateGameReviewDto,
   LikeGameDto,
-  RateGameDto,
 } from "../types/dtos/game-interaction.dto";
 
 const router = Router();
@@ -28,6 +26,14 @@ router.get(
   asyncHandler(gameController.getPopularGames)
 );
 router.get(
+  "/stats",
+  asyncHandler(gameController.getStats)
+);
+router.get(
+  "/recent-reviews",
+  asyncHandler(gameController.getRecentlyReviewedGames)
+);
+router.get(
   "/:gameId",
   optionalAuth,
   validateDto(ExternalGameParamsDto, "params"),
@@ -39,7 +45,7 @@ router.get(
   asyncHandler(gameController.getGameReviews)
 );
 router.post(
-  "/:gameId/reviews",
+  "/:gameId/review",
   verifyToken,
   validateDto(ExternalGameParamsDto, "params"),
   validateDto(CreateGameReviewDto),
@@ -51,20 +57,6 @@ router.post(
   validateDto(ExternalGameParamsDto, "params"),
   validateDto(LikeGameDto),
   asyncHandler(gameController.likeGame)
-);
-router.post(
-  "/:gameId/comments",
-  verifyToken,
-  validateDto(ExternalGameParamsDto, "params"),
-  validateDto(CreateGameCommentDto),
-  asyncHandler(gameController.commentGame)
-);
-router.post(
-  "/:gameId/ratings",
-  verifyToken,
-  validateDto(ExternalGameParamsDto, "params"),
-  validateDto(RateGameDto),
-  asyncHandler(gameController.rateGame)
 );
 
 export default router;

@@ -17,14 +17,8 @@ router.get(
   asyncHandler(profileController.getProfileLikedGames)
 );
 router.get(
-  "/:username/comments",
+  "/:username/reviews",
   validateDto(ProfileUsernameParamsDto, "params"),
-  asyncHandler(profileController.getProfileComments)
+  asyncHandler(profileController.getProfileReviews)
 );
-router.get(
-  "/:username/ratings",
-  validateDto(ProfileUsernameParamsDto, "params"),
-  asyncHandler(profileController.getProfileRatings)
-);
-
 export default router;

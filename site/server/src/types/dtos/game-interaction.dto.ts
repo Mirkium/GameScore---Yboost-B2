@@ -6,38 +6,17 @@ export class LikeGameDto {
   isFavorite?: boolean;
 }
 
-export class CreateGameCommentDto {
-  @IsOptional()
+export class CreateGameReviewDto {
   @IsString()
   @MaxLength(255)
-  title?: string;
+  title!: string;
 
   @IsString()
   @MaxLength(2000)
   comment!: string;
-}
 
-export class RateGameDto {
   @IsInt()
   @Min(0)
   @Max(100)
   rating!: number;
-}
-
-export class CreateGameReviewDto {
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  title?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(2000)
-  comment?: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(100)
-  rating?: number;
 }

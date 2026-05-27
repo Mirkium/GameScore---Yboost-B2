@@ -1,11 +1,9 @@
-import { GameComment } from "../../entities/game-comment.entity";
-import { GameRating } from "../../entities/game-rating.entity";
+import { GameReview } from "../../entities/game-review.entity";
 import { Profile } from "../../entities/profile.entity";
 import { ProfileLikedGame } from "../../entities/profile-liked-game.entity";
 
 export type PublicProfilePresenter = {
   readonly username: string | null;
-  readonly email: string | null;
   readonly profilePicture: string | null;
   readonly isVerified: boolean;
   readonly score: number;
@@ -20,7 +18,7 @@ export type LikedGamePresenter = {
   readonly likedAt: Date;
 };
 
-export type GameCommentPresenter = {
+export type GameReviewPresenter = {
   readonly id: number;
   readonly gameId: number;
   readonly gameSlug: string;
@@ -32,36 +30,13 @@ export type GameCommentPresenter = {
   readonly updatedAt: Date;
 };
 
-export type GameRatingPresenter = {
-  readonly id: number;
-  readonly gameId: number;
-  readonly gameSlug: string;
-  readonly gameName: string;
-  readonly rating: number;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
-};
-
 export const toPublicProfilePresenter = (
   profile: Profile
 ): PublicProfilePresenter => ({
   username: profile.username ?? null,
-  email: profile.credentials?.email ?? null,
   profilePicture: profile.avatarUrl ?? null,
   isVerified: profile.isVerified,
   score: profile.score,
-});
-
-export const toGameRatingPresenter = (
-  gameRating: GameRating
-): GameRatingPresenter => ({
-  id: gameRating.id,
-  gameId: gameRating.game.id,
-  gameSlug: gameRating.game.slug,
-  gameName: gameRating.game.name,
-  rating: gameRating.stars,
-  createdAt: gameRating.createdAt,
-  updatedAt: gameRating.updatedAt,
 });
 
 export const toLikedGamePresenter = (
@@ -75,18 +50,18 @@ export const toLikedGamePresenter = (
   likedAt: likedGame.likedAt,
 });
 
-export const toGameCommentPresenter = (
-  gameComment: GameComment
-): GameCommentPresenter => ({
-  id: gameComment.id,
-  gameId: gameComment.game.id,
-  gameSlug: gameComment.game.slug,
-  gameName: gameComment.game.name,
-  title: gameComment.title ?? null,
-  rating: gameComment.rating ?? null,
-  comment: gameComment.comment,
-  createdAt: gameComment.createdAt,
-  updatedAt: gameComment.updatedAt,
+export const toGameReviewPresenter = (
+  gameReview: GameReview
+): GameReviewPresenter => ({
+  id: gameReview.id,
+  gameId: gameReview.game.id,
+  gameSlug: gameReview.game.slug,
+  gameName: gameReview.game.name,
+  title: gameReview.title ?? null,
+  rating: gameReview.rating ?? null,
+  comment: gameReview.comment,
+  createdAt: gameReview.createdAt,
+  updatedAt: gameReview.updatedAt,
 });
 
 

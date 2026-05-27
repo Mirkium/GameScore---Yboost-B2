@@ -36,7 +36,7 @@ export interface GamePresenter {
     readonly ratingsCount: number;
     readonly likesCount: number;
     readonly favoritesCount: number;
-    readonly commentsCount: number;
+    readonly reviewsCount: number;
   };
   readonly isLikedByCurrentUser: boolean;
   readonly isFavoriteByCurrentUser: boolean;
@@ -55,7 +55,7 @@ export const toGamePlatformPresenter = (
 
 export const toGamePresenter = (
   game: Game,
-  community?: { averageRating: number | null; ratingsCount: number; likesCount: number; favoritesCount: number; commentsCount: number },
+  community?: { averageRating: number | null; ratingsCount: number; likesCount: number; favoritesCount: number; reviewsCount: number },
   userLike?: { liked: boolean; favorited: boolean }
 ): GamePresenter => ({
   id: game.id,
@@ -81,7 +81,7 @@ export const toGamePresenter = (
       }
     : null,
   platforms: game.platforms.map(toGamePlatformPresenter),
-  community: community ?? { averageRating: null, ratingsCount: 0, likesCount: 0, favoritesCount: 0, commentsCount: 0 },
+  community: community ?? { averageRating: null, ratingsCount: 0, likesCount: 0, favoritesCount: 0, reviewsCount: 0 },
   isLikedByCurrentUser: userLike?.liked ?? false,
   isFavoriteByCurrentUser: userLike?.favorited ?? false,
 });

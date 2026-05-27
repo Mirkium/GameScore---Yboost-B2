@@ -1,3 +1,4 @@
+import { In } from "typeorm";
 import { AppDataSource } from "../config/database";
 import { EsrbRating } from "../entities/esrb-rating.entity";
 import { Game } from "../entities/game.entity";
@@ -54,6 +55,23 @@ export class GameRepository {
   public async findById(id: number): Promise<Game | null> {
     return this.gameRepository.findOne({
       where: { id },
+      relations: [
+        "esrb_rating",
+        "platforms",
+        "platforms.platform",
+        "platforms.requirements",
+      ],
+    });
+  }
+
+  public async countAll(): Promise<number> {
+    return this.gameRepository.count();
+  }
+
+  public async findByIds(ids: number[]): Promise<Game[]> {
+    if (ids.length === 0) return [];
+    return this.gameRepository.find({
+      where: { id: In(ids) },
       relations: [
         "esrb_rating",
         "platforms",

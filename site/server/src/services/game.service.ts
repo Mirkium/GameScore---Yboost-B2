@@ -1,3 +1,5 @@
+import { Game } from "../entities/game.entity";
+import { gameRepository } from "../repositories/game.repository";
 import { profileInteractionRepository } from "../repositories/profile-interaction.repository";
 import { profileRepository } from "../repositories/profile.repository";
 import {
@@ -5,15 +7,12 @@ import {
   PopularGamesQueryDto,
 } from "../types/dtos/game.dto";
 import {
-  CreateGameCommentDto,
   CreateGameReviewDto,
   LikeGameDto,
-  RateGameDto,
 } from "../types/dtos/game-interaction.dto";
 import {
-  toGameCommentPresenter,
+  toGameReviewPresenter,
   toGamePresenter,
-  toGameRatingPresenter,
   toLikedGamePresenter,
 } from "../types/presenters";
 import { AppError } from "../utils/app-error";
@@ -24,7 +23,7 @@ import { rawgService } from "./rawg.service";
 type CommunityStats = {
   likesCount: number;
   favoritesCount: number;
-  commentsCount: number;
+  reviewsCount: number;
   ratingsCount: number;
   averageRating: number | null;
 };
@@ -73,7 +72,7 @@ export class GameService {
     const defaultCommunity = {
       likesCount: 0,
       favoritesCount: 0,
-      commentsCount: 0,
+      reviewsCount: 0,
       ratingsCount: 0,
       averageRating: null,
     };
@@ -183,10 +182,13 @@ export class GameService {
       this.enrichResultsWithCommunity(filteredByRating, communityStatsByGameId)
     );
 
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
     return {
       count: result.count,
       games,
-      hasMore: result.count > (query.pageSize ?? 20) * (query.page ?? 1),
+      page,
+      hasMore: result.count > pageSize * page,
     };
   }
 
@@ -245,6 +247,82 @@ export class GameService {
     });
   }
 
+  public async getRecentlyReviewedGames(limit: number) {
+    const rows = await profileInteractionRepository.findRecentlyReviewedGameIds(limit);
+    const gameIds = rows.map(r => r.gameId);
+
+    if (gameIds.length === 0) {
+      return { games: [] };
+    }
+
+    const localGames = await gameRepository.findByIds(gameIds);
+    const localMap = new Map(localGames.map(g => [g.id, g]));
+
+    const resolved: Game[] = [];
+    for (const id of gameIds) {
+      const local = localMap.get(id);
+      if (local) {
+        resolved.push(local);
+      } else {
+        const synced = await gameSyncService.resolveGame(id);
+        resolved.push(synced);
+      }
+    }
+
+    const communityStatsByGameId =
+      await profileInteractionRepository.findCommunityStatsByGameIds(gameIds);
+
+    const games = resolved.map(game => {
+      const stats = communityStatsByGameId.get(game.id);
+      const community = stats
+        ? {
+            averageRating: stats.averageRating !== null ? Math.round(stats.averageRating) : null,
+            ratingsCount: stats.ratingsCount,
+            likesCount: stats.likesCount,
+            favoritesCount: stats.favoritesCount,
+            reviewsCount: stats.reviewsCount,
+          }
+        : { averageRating: null, ratingsCount: 0, likesCount: 0, favoritesCount: 0, reviewsCount: 0 };
+
+      return {
+        id: game.id,
+        slug: game.slug,
+        name: game.name,
+        released: game.released,
+        tba: game.tba,
+        background_image: game.background_image,
+        rating: Math.round(game.rating * 20),
+        rating_top: game.rating_top * 20,
+        ratingsCount: game.ratings_count,
+        added: game.added,
+        metacritic: game.metacritic,
+        playtime: game.playtime,
+        platforms: game.platforms.map(gp => ({
+          platform: { id: gp.platform.id, slug: gp.platform.slug, name: gp.platform.name },
+        })),
+        community,
+      };
+    });
+
+    return { games };
+  }
+
+  public async getStats() {
+    const [gamesTracked, totalReviews, topScore, rawgResponse] = await Promise.all([
+      gameRepository.countAll(),
+      profileInteractionRepository.countTotalReviews(),
+      profileInteractionRepository.findTopCommunityScore(),
+      rawgService.searchGames({ pageSize: 1 }).catch(() => ({ count: 0 })),
+    ]);
+
+    return {
+      gamesTracked,
+      totalReviews,
+      topScore,
+      rawgGamesCount: rawgResponse.count,
+    };
+  }
+
   public async likeGame(profileId: string, gameId: number, payload: LikeGameDto) {
     const profile = await profileRepository.findById(profileId);
     if (!profile) {
@@ -261,57 +339,10 @@ export class GameService {
     return toLikedGamePresenter(like);
   }
 
-  public async commentGame(profileId: string, gameId: number, payload: CreateGameCommentDto) {
-    const profile = await profileRepository.findById(profileId);
-    if (!profile) {
-      throw new AppError(404, "Profile not found");
-    }
-
-    const game = await gameSyncService.resolveGame(gameId);
-    const comment = await profileInteractionRepository.createComment(
-      profileId,
-      game.id,
-      payload.comment,
-      payload.title ?? null
-    );
-
-    return toGameCommentPresenter(comment);
-  }
-
-  public async rateGame(profileId: string, gameId: number, payload: RateGameDto) {
-    const profile = await profileRepository.findById(profileId);
-    if (!profile) {
-      throw new AppError(404, "Profile not found");
-    }
-
-    if (payload.rating < 0 || payload.rating > 100) {
-      throw new AppError(400, "rating must be between 0 and 100");
-    }
-
-    const game = await gameSyncService.resolveGame(gameId);
-    const rating = await profileInteractionRepository.upsertRating(
-      profileId,
-      game.id,
-      payload.rating
-    );
-
-    return toGameRatingPresenter(rating);
-  }
-
   public async getGameReviews(gameId: number) {
     const game = await gameSyncService.resolveGame(gameId);
 
-    const [comments, ratings] = await Promise.all([
-      profileInteractionRepository.findCommentsByGameId(game.id),
-      profileInteractionRepository.findRatingsByGameId(game.id),
-    ]);
-
-    const latestRatingByProfile = new Map<string, number>();
-    for (const r of ratings) {
-      latestRatingByProfile.set(r.profile.id, r.stars);
-    }
-
-    const profilesWithComments = new Set<string>();
+    const reviews = await profileInteractionRepository.findReviewsByGameId(game.id);
 
     const result: Array<{
       profileId: string;
@@ -322,27 +353,14 @@ export class GameService {
       createdAt: Date;
     }> = [];
 
-    for (const c of comments) {
-      profilesWithComments.add(c.author.id);
+    for (const c of reviews) {
       result.push({
         profileId: c.author.id,
         username: c.author.username ?? null,
         title: c.title,
         comment: c.comment,
-        rating: c.rating ?? latestRatingByProfile.get(c.author.id) ?? null,
+        rating: c.rating ?? null,
         createdAt: c.createdAt,
-      });
-    }
-
-    for (const r of ratings) {
-      if (profilesWithComments.has(r.profile.id)) continue;
-      result.push({
-        profileId: r.profile.id,
-        username: r.profile.username ?? null,
-        title: null,
-        comment: null,
-        rating: r.stars,
-        createdAt: r.createdAt,
       });
     }
 
@@ -367,31 +385,15 @@ export class GameService {
 
     const game = await gameSyncService.resolveGame(gameId);
 
-    let commentResult = null;
-    let ratingResult = null;
+    const review = await profileInteractionRepository.createReview(
+      profileId,
+      game.id,
+      payload.comment,
+      payload.title,
+      payload.rating
+    );
 
-    if (payload.comment) {
-      commentResult = await profileInteractionRepository.createComment(
-        profileId,
-        game.id,
-        payload.comment,
-        payload.title ?? null,
-        payload.rating ?? null
-      );
-    }
-
-    if (payload.rating !== undefined) {
-      ratingResult = await profileInteractionRepository.createRating(
-        profileId,
-        game.id,
-        payload.rating
-      );
-    }
-
-    return {
-      comment: commentResult ? toGameCommentPresenter(commentResult) : null,
-      rating: ratingResult ? toGameRatingPresenter(ratingResult) : null,
-    };
+    return { review: toGameReviewPresenter(review) };
   }
 }
 
