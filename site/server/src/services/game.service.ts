@@ -34,7 +34,7 @@ type CachedSearchPayload = {
 };
 
 export class GameService {
-  private readonly rawgSearchCache = new LruCache<string, CachedSearchPayload>(50);
+  private readonly rawgSearchCache = new LruCache<string, CachedSearchPayload>(50, 60 * 60 * 1000); // 1 hour TTL
 
   private normalizeSearchRatings(
     results: ReadonlyArray<Record<string, unknown>>
@@ -308,7 +308,7 @@ export class GameService {
     return { games };
   }
 
-  private static readonly rawgCountCache = new LruCache<string, number>(1);
+  private static readonly rawgCountCache = new LruCache<string, number>(1, 60 * 60 * 1000); // 1 hour TTL
 
   public async getStats() {
     const [gamesTracked, totalReviews, topScore, rawgGamesCount] = await Promise.all([
