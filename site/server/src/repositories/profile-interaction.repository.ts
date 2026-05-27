@@ -1,12 +1,11 @@
 import { AppDataSource } from "../config/database";
-import { GameComment } from "../entities/game-comment.entity";
-import { GameRating } from "../entities/game-rating.entity";
+import { GameReview } from "../entities/game-review.entity";
 import { ProfileLikedGame } from "../entities/profile-liked-game.entity";
 
 export interface GameCommunityStats {
   readonly likesCount: number;
   readonly favoritesCount: number;
-  readonly commentsCount: number;
+  readonly reviewsCount: number;
   readonly ratingsCount: number;
   readonly averageRating: number | null;
 }
@@ -14,9 +13,17 @@ export interface GameCommunityStats {
 export class ProfileInteractionRepository {
   private readonly likedGameRepository = AppDataSource.getRepository(ProfileLikedGame);
 
-  private readonly commentRepository = AppDataSource.getRepository(GameComment);
+  private readonly reviewRepository = AppDataSource.getRepository(GameReview);
 
-  private readonly ratingRepository = AppDataSource.getRepository(GameRating);
+  public async findRecentlyReviewedGameIds(limit: number): Promise<Array<{ gameId: number }>> {
+    return this.reviewRepository
+      .createQueryBuilder("review")
+      .select("review.game_id", "gameId")
+      .groupBy("review.game_id")
+      .orderBy("MAX(review.createdAt)", "DESC")
+      .limit(limit)
+      .getRawMany();
+  }
 
   public async findCommunityStatsByGameIds(
     gameIds: readonly number[]
@@ -36,27 +43,29 @@ export class ProfileInteractionRepository {
       .groupBy("liked.game_id")
       .getRawMany<{ gameId: string; likesCount: string; favoritesCount: string | null }>();
 
-    const comments = await this.commentRepository
-      .createQueryBuilder("comment")
-      .select("comment.game_id", "gameId")
-      .addSelect("COUNT(comment.id)", "commentsCount")
-      .where("comment.game_id IN (:...gameIds)", { gameIds })
-      .groupBy("comment.game_id")
-      .getRawMany<{ gameId: string; commentsCount: string }>();
-
-    const ratings = await this.ratingRepository
-      .createQueryBuilder("rating")
-      .select("rating.game_id", "gameId")
-      .addSelect("COUNT(rating.id)", "ratingsCount")
-      .addSelect("AVG(rating.stars)", "averageRating")
-      .where("rating.game_id IN (:...gameIds)", { gameIds })
-      .groupBy("rating.game_id")
-      .getRawMany<{ gameId: string; ratingsCount: string; averageRating: string | null }>();
+    const [rated, all] = await Promise.all([
+      this.reviewRepository
+        .createQueryBuilder("review")
+        .select("review.game_id", "gameId")
+        .addSelect("COUNT(review.id)", "count")
+        .addSelect("AVG(review.rating)", "averageRating")
+        .where("review.game_id IN (:...gameIds)", { gameIds })
+        .andWhere("review.rating IS NOT NULL")
+        .groupBy("review.game_id")
+        .getRawMany<{ gameId: string; count: string; averageRating: string | null }>(),
+      this.reviewRepository
+        .createQueryBuilder("review")
+        .select("review.game_id", "gameId")
+        .addSelect("COUNT(review.id)", "count")
+        .where("review.game_id IN (:...gameIds)", { gameIds })
+        .groupBy("review.game_id")
+        .getRawMany<{ gameId: string; count: string }>(),
+    ]);
 
     const defaultStats: GameCommunityStats = {
       likesCount: 0,
       favoritesCount: 0,
-      commentsCount: 0,
+      reviewsCount: 0,
       ratingsCount: 0,
       averageRating: null,
     };
@@ -76,42 +85,51 @@ export class ProfileInteractionRepository {
       });
     }
 
-    for (const row of comments) {
+    for (const row of rated) {
       const gameId = Number(row.gameId);
       const current = statsByGameId.get(gameId) ?? defaultStats;
 
       statsByGameId.set(gameId, {
         ...current,
-        commentsCount: Number(row.commentsCount),
+        ratingsCount: Number(row.count),
+        averageRating: row.averageRating === null ? null : Number(row.averageRating),
       });
     }
 
-    for (const row of ratings) {
+    for (const row of all) {
       const gameId = Number(row.gameId);
       const current = statsByGameId.get(gameId) ?? defaultStats;
 
       statsByGameId.set(gameId, {
         ...current,
-        ratingsCount: Number(row.ratingsCount),
-        averageRating: row.averageRating === null ? null : Number(row.averageRating),
+        reviewsCount: Number(row.count),
       });
     }
 
     return statsByGameId;
   }
 
-  public async findCommentsByGameId(gameId: number): Promise<GameComment[]> {
-    return this.commentRepository.find({
-      where: { game: { id: gameId } },
-      relations: ["author", "game"],
-      order: { createdAt: "DESC" },
-    });
+  public async countTotalReviews(): Promise<number> {
+    return this.reviewRepository.count();
   }
 
-  public async findRatingsByGameId(gameId: number): Promise<GameRating[]> {
-    return this.ratingRepository.find({
+  public async findTopCommunityScore(): Promise<number | null> {
+    const row = await this.reviewRepository
+      .createQueryBuilder("review")
+      .select("AVG(review.rating)", "avg")
+      .where("review.rating IS NOT NULL")
+      .groupBy("review.game_id")
+      .orderBy("avg", "DESC")
+      .limit(1)
+      .getRawOne<{ avg: string | null }>();
+    if (!row) return null;
+    return row.avg !== null ? Math.round(Number(row.avg)) : null;
+  }
+
+  public async findReviewsByGameId(gameId: number): Promise<GameReview[]> {
+    return this.reviewRepository.find({
       where: { game: { id: gameId } },
-      relations: ["profile", "game"],
+      relations: ["author", "game"],
       order: { createdAt: "DESC" },
     });
   }
@@ -124,19 +142,11 @@ export class ProfileInteractionRepository {
     });
   }
 
-  public async findCommentsByUsername(username: string): Promise<GameComment[]> {
-    return this.commentRepository.find({
+  public async findReviewsByUsername(username: string): Promise<GameReview[]> {
+    return this.reviewRepository.find({
       where: { author: { username } },
       relations: ["game"],
       order: { createdAt: "DESC" },
-    });
-  }
-
-  public async findRatingsByUsername(username: string): Promise<GameRating[]> {
-    return this.ratingRepository.find({
-      where: { profile: { username } },
-      relations: ["game"],
-      order: { updatedAt: "DESC" },
     });
   }
 
@@ -177,8 +187,8 @@ export class ProfileInteractionRepository {
     });
   }
 
-  public async createComment(profileId: string, gameId: number, comment: string, title: string | null = null, rating: number | null = null): Promise<GameComment> {
-    const entity = this.commentRepository.create({
+  public async createReview(profileId: string, gameId: number, comment: string, title: string | null = null, rating: number | null = null): Promise<GameReview> {
+    const entity = this.reviewRepository.create({
       author: { id: profileId },
       game: { id: gameId },
       title,
@@ -186,65 +196,19 @@ export class ProfileInteractionRepository {
       comment,
     });
 
-    const saved = await this.commentRepository.save(entity);
-    const reloaded = await this.commentRepository.findOne({
+    const saved = await this.reviewRepository.save(entity);
+    const reloaded = await this.reviewRepository.findOne({
       where: { id: saved.id },
       relations: ["game"],
     });
 
     if (!reloaded) {
-      throw new Error("Failed to persist game comment");
+      throw new Error("Failed to persist game review");
     }
 
     return reloaded;
   }
 
-  public async upsertRating(profileId: string, gameId: number, stars: number): Promise<GameRating> {
-    const existing = await this.ratingRepository.findOne({
-      where: { profile: { id: profileId }, game: { id: gameId } },
-      relations: ["game"],
-    });
-
-    const rating = this.ratingRepository.create({
-      id: existing?.id,
-      profile: { id: profileId },
-      game: { id: gameId },
-      stars,
-    });
-
-    await this.ratingRepository.save(rating);
-
-    const saved = await this.ratingRepository.findOne({
-      where: { profile: { id: profileId }, game: { id: gameId } },
-      relations: ["game"],
-    });
-
-    if (!saved) {
-      throw new Error("Failed to persist game rating");
-    }
-
-    return saved;
-  }
-
-  public async createRating(profileId: string, gameId: number, stars: number): Promise<GameRating> {
-    const entity = this.ratingRepository.create({
-      profile: { id: profileId },
-      game: { id: gameId },
-      stars,
-    });
-
-    const saved = await this.ratingRepository.save(entity);
-    const reloaded = await this.ratingRepository.findOne({
-      where: { id: saved.id },
-      relations: ["game"],
-    });
-
-    if (!reloaded) {
-      throw new Error("Failed to persist game rating");
-    }
-
-    return reloaded;
-  }
 }
 
 export const profileInteractionRepository = new ProfileInteractionRepository();

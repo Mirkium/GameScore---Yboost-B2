@@ -6,5 +6,4 @@ export * from "./platform.entity";
 export * from "./platform-requirements.entity";
 export * from "./game-platform.entity";
 export * from "./profile-liked-game.entity";
-export * from "./game-comment.entity";
-export * from "./game-rating.entity";
+export * from "./game-review.entity";

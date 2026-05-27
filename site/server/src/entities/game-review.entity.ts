@@ -10,27 +10,33 @@ import {
 import { Game } from "./game.entity";
 import { Profile } from "./profile.entity";
 
-@Entity({ name: "game_ratings" })
-export class GameRating {
+@Entity({ name: "game_reviews" })
+export class GameReview {
   @PrimaryGeneratedColumn({ unsigned: true })
   id!: number;
 
-  @ManyToOne(() => Profile, (profile) => profile.gameRatings, {
+  @ManyToOne(() => Profile, (profile) => profile.gameReviews, {
     nullable: false,
     onDelete: "CASCADE",
   })
-  @JoinColumn({ name: "profile_id" })
-  profile!: Profile;
+  @JoinColumn({ name: "author_profile_id" })
+  author!: Profile;
 
-  @ManyToOne(() => Game, (game) => game.ratingsByProfiles, {
+  @ManyToOne(() => Game, (game) => game.reviews, {
     nullable: false,
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "game_id" })
   game!: Game;
 
-  @Column({ type: "tinyint", unsigned: true })
-  stars!: number;
+  @Column({ type: "varchar", length: 255, nullable: true })
+  title!: string | null;
+
+  @Column({ type: "tinyint", unsigned: true, nullable: true })
+  rating!: number | null;
+
+  @Column({ type: "text" })
+  comment!: string;
 
   @CreateDateColumn()
   createdAt!: Date;

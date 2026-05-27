@@ -7,9 +7,8 @@ import {
   PrimaryColumn,
 } from "typeorm";
 import { EsrbRating } from "./esrb-rating.entity";
-import { GameComment } from "./game-comment.entity";
+import { GameReview } from "./game-review.entity";
 import { GamePlatform } from "./game-platform.entity";
-import { GameRating } from "./game-rating.entity";
 import { ProfileLikedGame } from "./profile-liked-game.entity";
 
 @Entity({ name: "games" })
@@ -80,9 +79,6 @@ export class Game {
   @OneToMany(() => ProfileLikedGame, (likedGame) => likedGame.game)
   likedByProfiles!: ProfileLikedGame[];
 
-  @OneToMany(() => GameComment, (comment) => comment.game)
-  comments!: GameComment[];
-
-  @OneToMany(() => GameRating, (rating) => rating.game)
-  ratingsByProfiles!: GameRating[];
+  @OneToMany(() => GameReview, (review) => review.game)
+  reviews!: GameReview[];
 }

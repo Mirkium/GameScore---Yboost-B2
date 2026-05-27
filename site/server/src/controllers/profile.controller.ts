@@ -14,17 +14,12 @@ export class ProfileController {
     res.status(200).json(likedGames);
   };
 
-  public readonly getProfileComments = async (req: Request, res: Response): Promise<void> => {
+  public readonly getProfileReviews = async (req: Request, res: Response): Promise<void> => {
     const username = String(req.params.username);
-    const comments = await profileService.getCommentsByUsername(username);
-    res.status(200).json(comments);
+    const reviews = await profileService.getReviewsByUsername(username);
+    res.status(200).json(reviews);
   };
 
-  public readonly getProfileRatings = async (req: Request, res: Response): Promise<void> => {
-    const username = String(req.params.username);
-    const ratings = await profileService.getRatingsByUsername(username);
-    res.status(200).json(ratings);
-  };
 }
 
 export const profileController = new ProfileController();

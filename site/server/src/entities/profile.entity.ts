@@ -7,10 +7,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { GameComment } from "./game-comment.entity";
+import { GameReview } from "./game-review.entity";
 import { ProfileLikedGame } from "./profile-liked-game.entity";
 import { UserCredentials } from "./user-credentials.entity";
-import { GameRating } from "./game-rating.entity";
 
 @Entity({ name: "profiles" })
 export class Profile {
@@ -44,11 +43,8 @@ export class Profile {
   @OneToMany(() => ProfileLikedGame, (likedGame) => likedGame.profile)
   likedGames!: ProfileLikedGame[];
 
-  @OneToMany(() => GameComment, (comment) => comment.author)
-  gameComments!: GameComment[];
-
-  @OneToMany(() => GameRating, (rating) => rating.profile)
-  gameRatings!: GameRating[];
+  @OneToMany(() => GameReview, (review) => review.author)
+  gameReviews!: GameReview[];
 
   @CreateDateColumn()
   createdAt!: Date;
