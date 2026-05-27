@@ -1,0 +1,6 @@
+FROM nginx:alpine
+COPY site/FrontEnd/Public /usr/share/nginx/html
+
+RUN sed -i 's|{{ENDPOINT}}|/api|g' /usr/share/nginx/html/assets/js/api.js
+
+COPY Docker/nginx.conf /etc/nginx/conf.d/default.conf
