@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "{{ENDPOINT}}";
 const LS_TOKEN = "gamescore-token";
 const LS_USER = "gamescore-user";
 const LS_THEME = "gamescore-theme";
