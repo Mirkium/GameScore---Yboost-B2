@@ -308,29 +308,19 @@ export class GameService {
     return { games };
   }
 
-  private static readonly statsCache = new LruCache<string, {
-    gamesTracked: number;
-    totalReviews: number;
-    topScore: number | null;
-    rawgGamesCount: number;
-  }>(1);
+  private static readonly rawgCountCache = new LruCache<string, number>(1);
 
   public async getStats() {
-    return GameService.statsCache.getOrSet("key", async () => {
-      const [gamesTracked, totalReviews, topScore, rawgResponse] = await Promise.all([
-        gameRepository.countAll(),
-        profileInteractionRepository.countTotalReviews(),
-        profileInteractionRepository.findTopCommunityScore(),
-        rawgService.searchGames({ pageSize: 1 }).catch(() => ({ count: 0 })),
-      ]);
+    const [gamesTracked, totalReviews, topScore, rawgGamesCount] = await Promise.all([
+      gameRepository.countAll(),
+      profileInteractionRepository.countTotalReviews(),
+      profileInteractionRepository.findTopCommunityScore(),
+      GameService.rawgCountCache.getOrSet("key", () =>
+        rawgService.searchGames({ pageSize: 1 }).then(r => r.count, () => 0),
+      ),
+    ]);
 
-      return {
-        gamesTracked,
-        totalReviews,
-        topScore,
-        rawgGamesCount: rawgResponse.count,
-      };
-    });
+    return { gamesTracked, totalReviews, topScore, rawgGamesCount };
   }
 
   public async likeGame(profileId: string, gameId: number, payload: LikeGameDto) {
