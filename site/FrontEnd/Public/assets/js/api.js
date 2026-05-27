@@ -48,6 +48,12 @@ function logoutUser() { return apiFetch("/auth/logout", { method: "POST" }); }
 function fetchPopularGames(page, pageSize) {
   return apiFetch(`/games/popular?page=${page}&pageSize=${pageSize}`);
 }
+function fetchGameStats() {
+  return apiFetch("/games/stats");
+}
+function fetchRecentlyReviewedGames(limit) {
+  return apiFetch(`/games/recent-reviews?limit=${limit}`);
+}
 function fetchGameById(id) { return apiFetch(`/games/${id}`); }
 function searchGames(q) {
   const p = new URLSearchParams();
@@ -61,13 +67,13 @@ function fetchGameReviews(id) {
   return apiFetch(`/games/${id}/reviews`);
 }
 function createGameReview(id, data) {
-  return apiFetch(`/games/${id}/reviews`, { method: "POST", body: JSON.stringify(data) });
+  return apiFetch(`/games/${id}/review`, { method: "POST", body: JSON.stringify(data) });
 }
 
 function fetchProfile(username) { return apiFetch(`/profiles/${encodeURIComponent(username)}`); }
 function fetchProfileLikedGames(username) { return apiFetch(`/profiles/${encodeURIComponent(username)}/liked-games`); }
-function fetchProfileComments(username) { return apiFetch(`/profiles/${encodeURIComponent(username)}/comments`); }
-function fetchProfileRatings(username) { return apiFetch(`/profiles/${encodeURIComponent(username)}/ratings`); }
+function fetchProfileReviews(username) { return apiFetch(`/profiles/${encodeURIComponent(username)}/reviews`); }
+
 
 function applyTheme(theme) {
   const next = theme === "light" ? "light" : "dark";
