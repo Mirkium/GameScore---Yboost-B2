@@ -45,36 +45,48 @@ function updateHeader() {
   const nav = document.querySelector(".auth-nav");
   if (!nav) return;
 
-  const loggedIn = isLoggedIn();
-  const user = getStoredUser();
-
-  if (loggedIn && user) {
-    nav.innerHTML = `
+  const render = (loggedIn, user) => {
+    if (loggedIn && user) {
+      nav.innerHTML = `
       <a href="./home.html" class="link signup">Home</a>
       <a href="./user.html" class="btn login">Profile</a>
       <button type="button" class="brightnessControl" aria-label="Toggle theme"></button>
       <button type="button" class="btn logout" id="logoutBtn">Logout</button>`;
-  } else {
-    nav.innerHTML = `
+    } else {
+      nav.innerHTML = `
       <a href="./connect.html" class="link signup">Sign Up</a>
       <a href="./connect.html" class="btn login">Login</a>
       <button type="button" class="brightnessControl" aria-label="Toggle theme"></button>`;
-  }
+    }
 
-  const saved = localStorage.getItem(LS_THEME) || "dark";
-  applyTheme(saved);
+    const saved = localStorage.getItem(LS_THEME) || "dark";
+    applyTheme(saved);
 
-  document.querySelectorAll(".brightnessControl").forEach(b => {
-    b.addEventListener("click", () => {
-      const cur = localStorage.getItem(LS_THEME) || "dark";
-      applyTheme(cur === "light" ? "dark" : "light");
+    document.querySelectorAll(".brightnessControl").forEach(b => {
+      b.addEventListener("click", () => {
+        const cur = localStorage.getItem(LS_THEME) || "dark";
+        applyTheme(cur === "light" ? "dark" : "light");
+      });
     });
-  });
 
-  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-    try { await logoutUser(); } catch { /* ignore */ }
-    clearToken(); clearStoredUser(); window.location.href = "./home.html";
-  });
+    document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+      try { await logoutUser(); } catch { /* ignore */ }
+      clearToken(); clearStoredUser(); window.location.href = "./home.html";
+    });
+  };
+
+  const loggedIn = isLoggedIn();
+  const user = getStoredUser();
+
+  render(loggedIn, user);
+
+  if (loggedIn) {
+    fetchMe().catch(() => {
+      clearToken();
+      clearStoredUser();
+      render(false, null);
+    });
+  }
 
   setupSearch();
 }
@@ -98,12 +110,22 @@ function setupSearch() {
 
 async function initHomePage() {
   try {
-    const popular = await fetchPopularGames(1, 12);
-    const games = popular.games || [];
-    if (games.length === 0) return;
-    renderFeatured(games[0]);
-    renderTopGames(games.slice(0, 8));
-    renderRecentReviews(games.slice(0, 6));
+    const [popular, recent] = await Promise.all([
+      fetchPopularGames(1, 12),
+      fetchRecentlyReviewedGames(6),
+    ]);
+
+    const popularGames = popular.games || [];
+    const recentGames = recent.games || [];
+
+    if (popularGames.length > 0) {
+      renderFeatured(popularGames[0]);
+      renderTopGames(popularGames.slice(0, 8));
+    }
+
+    if (recentGames.length > 0) {
+      renderRecentReviews(recentGames);
+    }
   } catch (err) {
     console.error("Home page error:", err);
     const main = document.querySelector("main");
@@ -182,6 +204,38 @@ function initConnectPage() {
   setupAuthSlider();
   bindLoginForm();
   bindRegisterForm();
+  setAuthBackground();
+}
+
+async function setAuthBackground() {
+  const side = document.querySelector(".authSide");
+  if (!side) return;
+  try {
+    const [stats, popular] = await Promise.all([
+      fetchGameStats().catch(() => null),
+      fetchPopularGames(1, 1),
+    ]);
+
+    const game = popular.games?.[0];
+    const bg = game?.background_image;
+    if (bg) {
+      const isLight = document.body.classList.contains("lightMode");
+      const overlay = isLight
+        ? "linear-gradient(145deg, rgba(244, 247, 251, 0.88), rgba(232, 237, 246, 0.78))"
+        : "linear-gradient(145deg, rgba(5, 8, 22, 0.86), rgba(15, 23, 51, 0.78))";
+      side.style.backgroundImage = `${overlay}, url(${bg})`;
+    }
+
+    const statsEl = document.querySelector(".authStats");
+    if (statsEl && stats) {
+      const fmt = (n) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : n;
+      statsEl.innerHTML = `
+        <div class="authStat"><strong>${fmt(stats.totalReviews) ?? "—"}</strong><span>reviews</span></div>
+        <div class="authStat"><strong>${fmt(stats.gamesTracked) ?? "—"}</strong><span>tracked</span></div>
+        <div class="authStat"><strong>${fmt(stats.rawgGamesCount) ?? "—"}</strong><span>available</span></div>
+      `;
+    }
+  } catch {}
 }
 
 function setupAuthSlider() {
@@ -268,6 +322,61 @@ async function initGamePage() {
   }
   applyScoreColors();
   bindReviewForm();
+}
+
+function bindReviewForm() {
+  const form = document.querySelector("#review-form");
+  if (!form) return;
+
+  if (!isLoggedIn()) {
+    form.innerHTML = `
+      <h2>Your Review</h2>
+      <div class="authForm" style="text-align:center;padding:24px 0;">
+        <p style="margin-bottom:16px;color:var(--text-secondary)">Log in to write a review.</p>
+        <a href="./connect.html" class="neonBtn pinkBtn" style="display:inline-block;text-decoration:none;">Login</a>
+      </div>
+    `;
+    return;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const gameId = getQueryParam("id");
+    if (!gameId) { showFormMsg(form, "No game selected.", "error"); return; }
+
+    const titleInput = form.querySelector("#review-title");
+    const scoreInput = form.querySelector("#review-score");
+    const textInput = form.querySelector("#review-text");
+    const btn = form.querySelector('button[type="submit"]');
+
+    const title = titleInput ? titleInput.value.trim() : "";
+    const score = scoreInput ? parseInt(scoreInput.value, 10) : NaN;
+    const comment = textInput ? textInput.value.trim() : "";
+
+    if (!comment) { showFormMsg(form, "Please write a review.", "error"); return; }
+
+    const body = { comment };
+    if (title) body.title = title;
+    if (!isNaN(score) && score >= 0 && score <= 100) {
+      body.rating = score;
+    }
+
+    btn.disabled = true; btn.textContent = "Publishing…";
+    try {
+      await createGameReview(parseInt(gameId, 10), body);
+      showFormMsg(form, "Review published! 🎮", "success");
+      if (titleInput) titleInput.value = "";
+      if (textInput) textInput.value = "";
+      if (scoreInput) scoreInput.value = "";
+      const reviews = await fetchGameReviews(parseInt(gameId, 10));
+      renderGameReviews(reviews);
+      applyScoreColors();
+    } catch (err) {
+      showFormMsg(form, err.message || "Failed to publish.", "error");
+    } finally {
+      btn.disabled = false; btn.textContent = "Publish";
+    }
+  });
 }
 
 function renderGameDetails(game) {
@@ -384,52 +493,6 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-function bindReviewForm() {
-  const form = document.querySelector("#review-form");
-  if (!form) return;
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!isLoggedIn()) { showFormMsg(form, "Please log in to submit a review.", "error"); return; }
-    const gameId = getQueryParam("id");
-    if (!gameId) { showFormMsg(form, "No game selected.", "error"); return; }
-
-    const titleInput = form.querySelector("#review-title");
-    const scoreInput = form.querySelector("#review-score");
-    const textInput = form.querySelector("#review-text");
-    const btn = form.querySelector('button[type="submit"]');
-
-    const title = titleInput ? titleInput.value.trim() : "";
-    const score = scoreInput ? parseInt(scoreInput.value, 10) : NaN;
-    const comment = textInput ? textInput.value.trim() : "";
-
-    if (!comment) { showFormMsg(form, "Please write a review.", "error"); return; }
-
-    const body = { comment };
-    if (title) body.title = title;
-    if (!isNaN(score) && score >= 0 && score <= 100) {
-      body.rating = score;
-    }
-
-    btn.disabled = true; btn.textContent = "Publishing…";
-    try {
-      await createGameReview(parseInt(gameId, 10), body);
-      showFormMsg(form, "Review published! 🎮", "success");
-      if (titleInput) titleInput.value = "";
-      if (textInput) textInput.value = "";
-      if (scoreInput) scoreInput.value = "";
-      // Refresh reviews
-      const reviews = await fetchGameReviews(parseInt(gameId, 10));
-      renderGameReviews(reviews);
-      applyScoreColors();
-    } catch (err) {
-      showFormMsg(form, err.message || "Failed to publish.", "error");
-    } finally {
-      btn.disabled = false; btn.textContent = "Publish";
-    }
-  });
-}
-
 // ─── USER PAGE ──────────────────────────────────────────────
 
 async function initUserPage() {
@@ -453,14 +516,13 @@ async function initUserPage() {
   }
 
   try {
-    const [profile, liked, comments, ratings] = await Promise.all([
+    const [profile, liked, reviews] = await Promise.all([
       fetchProfile(username),
       fetchProfileLikedGames(username),
-      fetchProfileComments(username),
-      fetchProfileRatings(username),
+      fetchProfileReviews(username),
     ]);
-    renderProfileHero(profile, comments, ratings, liked);
-    renderActivity(comments, ratings);
+    renderProfileHero(profile, reviews, liked);
+    renderActivity(reviews);
     renderFavorites(liked);
   } catch (err) {
     console.error("Profile error:", err);
@@ -470,7 +532,7 @@ async function initUserPage() {
   applyScoreColors();
 }
 
-function renderProfileHero(profile, comments, ratings, liked) {
+function renderProfileHero(profile, reviews, liked) {
   const hero = document.querySelector(".profileHero");
   if (!hero) return;
 
@@ -485,28 +547,25 @@ function renderProfileHero(profile, comments, ratings, liked) {
 
   const stats = hero.querySelector(".profileStats");
   if (stats) {
-    const avg = ratings.length > 0 ? Math.round(ratings.reduce((s, r) => s + r.rating, 0) / ratings.length) : 0;
+    const rated = reviews.filter(r => r.rating !== null);
+    const avg = rated.length > 0 ? Math.round(rated.reduce((s, r) => s + r.rating, 0) / rated.length) : 0;
     const favs = liked ? liked.filter(g => g.isFavorite).length : 0;
-    stats.innerHTML = `<div class="profileStat"><strong>${comments.length}</strong><span>reviews</span></div><div class="profileStat"><strong>${avg}</strong><span>avg score</span></div><div class="profileStat"><strong>${favs}</strong><span>favorites</span></div>`;
+    stats.innerHTML = `<div class="profileStat"><strong>${reviews.length}</strong><span>reviews</span></div><div class="profileStat"><strong>${avg}</strong><span>avg score</span></div><div class="profileStat"><strong>${favs}</strong><span>favorites</span></div>`;
   }
 }
 
-function renderActivity(comments, ratings) {
+function renderActivity(reviews) {
   const c = document.querySelector(".activityList");
   if (!c) return;
   clearEl(c);
 
-  const seenGameIds = new Set();
-  const items = [];
-  comments.forEach(cmt => {
-    seenGameIds.add(cmt.gameId);
-    items.push({ gameName: cmt.gameName, gameId: cmt.gameId, score: cmt.rating, date: new Date(cmt.createdAt), desc: cmt.rating !== null ? `Reviewed — rated ${cmt.rating}/100` : "Wrote a review." });
-  });
-  ratings.forEach(r => {
-    if (seenGameIds.has(r.gameId)) return;
-    seenGameIds.add(r.gameId);
-    items.push({ gameName: r.gameName, gameId: r.gameId, score: r.rating, date: new Date(r.createdAt), desc: `Rated ${r.rating}/100.` });
-  });
+  const items = reviews.map(r => ({
+    gameName: r.gameName,
+    gameId: r.gameId,
+    score: r.rating,
+    date: new Date(r.createdAt),
+    desc: r.rating !== null ? `Reviewed — rated ${r.rating}/100` : "Wrote a review.",
+  }));
 
   items.sort((a, b) => b.date - a.date);
   const recent = items.slice(0, 10);
@@ -581,6 +640,7 @@ async function initSearchPage() {
   populateFilters();
   await runSearch();
   bindSearchFilters();
+  bindSearchPagination();
 
   window.addEventListener("popstate", () => {
     populateFilters();
@@ -609,6 +669,9 @@ async function runSearch() {
 
   const p = new URLSearchParams(window.location.search);
   const apiParams = { search: query, pageSize: 20 };
+
+  const page = parseInt(p.get("page"), 10) || 1;
+  apiParams.page = page;
 
   const sort = p.get("sort");
   if (sort) apiParams.ordering = sort;
@@ -652,6 +715,7 @@ async function runSearch() {
     }
 
     renderSearchResults(games);
+    updatePagination(result);
   } catch (err) {
     console.error("Search error:", err);
     if (countEl) { countEl.textContent = "Search failed. Try again later."; countEl.classList.remove("sk"); }
@@ -659,6 +723,7 @@ async function runSearch() {
       clearEl(grid);
       grid.innerHTML = '<p class="empty-state" style="padding:24px;color:#888;text-align:center;grid-column:1/-1">Could not load search results.</p>';
     }
+    document.querySelector(".searchPagination")?.setAttribute("hidden", "");
   }
   applyScoreColors();
 }
@@ -724,6 +789,42 @@ function renderSearchResults(games) {
       <p class="NoteCommu">${Math.round(g.rating)}</p>`;
 
     grid.appendChild(a);
+  });
+}
+
+// ─── Search pagination ─────────────────────────────────────
+
+function updatePagination(result) {
+  const el = document.querySelector(".searchPagination");
+  if (!el) return;
+
+  const currentPage = result.page || parseInt(getQueryParam("page"), 10) || 1;
+  const total = result.count || 0;
+  const pageSize = 20;
+  const totalPages = Math.ceil(total / pageSize) || 1;
+
+  el.removeAttribute("hidden");
+  document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+  document.getElementById("prevPage").disabled = currentPage <= 1;
+  document.getElementById("nextPage").disabled = !result.hasMore;
+}
+
+function bindSearchPagination() {
+  document.getElementById("prevPage")?.addEventListener("click", () => {
+    const p = new URLSearchParams(window.location.search);
+    const page = parseInt(p.get("page"), 10) || 1;
+    if (page <= 1) return;
+    p.set("page", String(page - 1));
+    window.history.pushState({}, "", `./search.html?${p.toString()}`);
+    runSearch();
+  });
+
+  document.getElementById("nextPage")?.addEventListener("click", () => {
+    const p = new URLSearchParams(window.location.search);
+    const page = parseInt(p.get("page"), 10) || 1;
+    p.set("page", String(page + 1));
+    window.history.pushState({}, "", `./search.html?${p.toString()}`);
+    runSearch();
   });
 }
 

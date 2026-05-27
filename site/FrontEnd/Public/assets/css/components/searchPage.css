@@ -109,6 +109,13 @@
   font-size: 0.85rem;
 }
 
+.searchPagination .neonBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  animation: none;
+  filter: grayscale(0.6);
+}
+
 /* Skeleton variant for cards */
 .sk-card .sk {
   border-radius: 4px;
