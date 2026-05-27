@@ -206,6 +206,7 @@ export class GameService {
     return toGamePresenter(game, community, userLike);
   }
 
+
   public async searchGames(query: ExternalGameSearchQueryDto) {
     const dates =
       query.releasedFrom || query.releasedTo
@@ -349,6 +350,10 @@ export class GameService {
   }
 
   public async getGameReviews(gameId: number) {
+    const game = await gameRepository.findById(gameId);
+    if(!game) {
+      return [];
+    }
     const reviews = await profileInteractionRepository.findReviewsByGameId(gameId);
 
     const result: Array<{
