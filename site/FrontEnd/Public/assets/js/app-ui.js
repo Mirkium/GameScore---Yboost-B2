@@ -64,6 +64,13 @@ function updateHeader() {
   const saved = localStorage.getItem(LS_THEME) || "dark";
   applyTheme(saved);
 
+  document.querySelectorAll(".brightnessControl").forEach(b => {
+    b.addEventListener("click", () => {
+      const cur = localStorage.getItem(LS_THEME) || "dark";
+      applyTheme(cur === "light" ? "dark" : "light");
+    });
+  });
+
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     try { await logoutUser(); } catch { /* ignore */ }
     clearToken(); clearStoredUser(); window.location.href = "./home.html";
