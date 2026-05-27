@@ -1,342 +1,491 @@
-# GameScore Technical Documentation
+# GameScore — Technical Documentation
 
-## 1. Overview
+> Full-stack game-centric social web platform
+> Yboost B2 — Development Project
 
-GameScore is a TypeScript backend for a game-centric social experience.
+---
 
-It combines three main ideas:
+## 1. Project Overview
 
-1. **Authentication** — users can register, log in, and maintain a session.
-2. **Profiles and interactions** — users can like, favorite, comment on, and rate games.
-3. **RAWG game data** — the app fetches game metadata from the RAWG Video Games API on demand and stores only what it needs locally.
+GameScore is a web application that allows users to discover video games and interact socially around them. It connects to the RAWG Video Games Database API to provide access to over 850,000 games, and lets authenticated users rate, review, like, and favorite games.
 
-The backend is built with:
+### Core features
 
-- `Express` for HTTP routing
-- `TypeScript` in `strict` mode
-- `TypeORM` for database access
-- `class-validator` and `class-transformer` for request validation
-- `MySQL` for persistence
+- User registration and JWT-based authentication
+- Game search with filters (date, rating, platform, genre, metacritic score)
+- Popular games listing (configurable time period)
+- Game detail page with full metadata, platforms, ESRB rating
+- Social interactions: like/favorite, review (comment + rating)
+- Public user profiles showing activity (liked games, reviews)
+- Homepage with recently reviewed games and community stats
+- Dark/light theme support
+- Responsive design
 
-## 2. High-level architecture
+### Target audience
 
-The project follows a clean layered design:
+Gamers who want a single social hub to discover and discuss games across all platforms (PC, PlayStation, Xbox, Nintendo) without needing accounts on each platform.
 
-```text
-HTTP request
-  -> route
-  -> validation middleware
-  -> async handler
-  -> controller
-  -> service
-  -> repository / external API
-  -> presenter
-  -> HTTP response
+---
+
+## 2. System Architecture
+
+### 2.1 High-level architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   Frontend                          │
+│        (Vanilla HTML / CSS / JavaScript)            │
+│                                                     │
+│  home.html  connect.html  game.html  search.html    │
+│  user.html  contact.html  error.html                │
+└──────────────┬──────────────────────────────────────┘
+               │ HTTP (API calls)
+               ▼
+┌──────────────────────────────────────────────────────┐
+│                    Backend                           │
+│          Express 5 + TypeScript                      │
+│                                                      │
+│  Routes → Validation → Controller → Service          │
+│                                          │           │
+│                              Repository ─┴─ RAWG API │
+│                                    │                 │
+│                                    ▼                 │
+│                               MySQL 8                │
+└──────────────────────────────────────────────────────┘
 ```
 
-### Responsibilities by layer
+### 2.2 Layered architecture
 
-- **Routes**: define URLs and middleware order.
-- **Controllers**: handle request/response objects only.
-- **Services**: contain business logic and orchestration.
-- **Repositories**: isolate database queries and TypeORM details.
-- **DTOs**: validate and normalize input.
-- **Presenters**: shape output for API responses.
-- **middlewares**: handle security, async wrapping, and validation.
-- **Utils**: Implement some utils method that is not in business logic (lru, etc)
-   
-## 3. Project structure
+The backend follows a strict layered architecture:
 
-### Server folder
-
-The backend lives in `site/server`.
-
-```text
-src/
-├── app.ts
-├── server.ts
-├── config/
-├── controllers/
-├── entities/
-├── middlewares/
-├── migrations/
-├── repositories/
-├── routes/
-├── services/
-├── types/
-└── utils/
+```
+HTTP Request
+  │
+  ▼
+┌──────────┐
+│  Route   │  Defines URL, HTTP method, middleware stack
+├──────────┤
+│Validator │  class-validator DTO validation
+├──────────┤
+│ Handler  │  asyncHandler catches errors → errorMiddleware
+├──────────┤
+│Controller│  Handles req/res only — no business logic
+├──────────┤
+│ Service  │  Business logic, orchestration, caching
+├──────────┤
+│Repository│  TypeORM queries isolated from business code
+├──────────┤
+│Presenter │  Shapes internal entities into API contracts
+└──────────┘
+  │
+  ▼
+HTTP Response (JSON)
 ```
 
-### Frontend folder
-
-The `site/FrontEnd` folder contains static views and assets.
-
-## 4. Runtime flow
-
-### Boot sequence
-
-1. `server.ts` loads the TypeORM `DataSource`.
-2. Migrations run automatically.
-3. The Express app starts listening on the configured port.
-
-### Request flow
-
-1. A route receives the request.
-2. `validateDto(...)` checks the input.
-3. `asyncHandler(...)` forwards async errors to the global handler.
-4. The controller passes validated data to a service.
-5. The service coordinates database access and RAWG requests.
-6. The service returns a presenter-friendly object.
-7. The controller sends JSON back to the client.
-
-## 5. Core modules
-
-### Authentication
-
-Files:
-
-- `src/controllers/auth.controller.ts`
-- `src/services/auth.service.ts`
-- `src/routes/auth.routes.ts`
-- `src/types/dtos/auth.dto.ts`
-
-Capabilities:
-
-- Register a new account.
-- Log in with email and password.
-- Log out the current authenticated session.
-- Read the current authenticated user with `GET /api/auth/me`.
-
-Behavior:
-
-- Passwords are hashed with `bcryptjs`.
-- A JWT access token is generated through the auth middleware.
-- Unique usernames are created automatically when needed.
-
-### Profiles
-
-Files:
-
-- `src/controllers/profile.controller.ts`
-- `src/services/profile.service.ts`
-- `src/routes/profile.routes.ts`
-- `src/types/dtos/profile.dto.ts`
-
-Capabilities:
-
-- Read a public profile by username.
-- List liked games.
-- List comments.
-- List ratings.
-
-### Games
-
-Files:
-
-- `src/controllers/game.controller.ts`
-- `src/services/game.service.ts`
-- `src/services/rawg.service.ts`
-- `src/services/game-sync.service.ts`
-- `src/routes/game.routes.ts`
-- `src/types/dtos/game.dto.ts`
-
-Capabilities:
-
-- Search RAWG games.
-- Get popular games.
-- Fetch a single game by `gameId`.
-- Like, comment, and rate games.
-
-### Database access
-
-Files:
-
-- `src/repositories/profile.repository.ts`
-- `src/repositories/profile-interaction.repository.ts`
-- `src/repositories/user-credentials.repository.ts`
-- `src/repositories/game.repository.ts`
-
-Responsibilities:
-
-- Keep SQL and TypeORM logic out of controllers and services.
-- Encapsulate joins, lookups, and write operations.
-- Aggregate community statistics for games.
-
-## 6. Data model
-
-### Main entities
-
-- **`profiles`** — user-facing profile records.
-- **`user_credentials`** — login credentials and provider metadata.
-- **`games`** — locally stored RAWG game records.
-- **`game_comments`** — comments written by users on games.
-- **`game_ratings`** — star ratings per profile and game.
-- **`profile_liked_games`** — likes and favorites per profile and game.
-
-### Relationships
-
-- A profile has one set of credentials.
-- A profile can like many games.
-- A profile can comment on many games.
-- A profile can rate many games.
-- A game can be liked, commented on, and rated by many profiles.
-
-### Important `games` fields
-
-- `id`: RAWG game ID and local primary key.
-- `slug`, `name`, `released`, `tba`.
-- `rating`, `rating_top`, `ratings`, `ratings_count`.
-- `metacritic`, `playtime`, `updated`.
-- `lastSyncedAt`: used to track when the local row was last refreshed.
-
-## 7. RAWG integration
-
-### Strategy
-
-The project does not pre-seed every RAWG game.
-
-Instead it uses lazy hydration:
-
-1. Search and popular endpoints fetch list data from RAWG.
-2. A game is stored locally when the app needs it.
-3. `GameSyncService.resolveGame(gameId)` checks the local database first.
-4. If the game is missing or stale, the app refreshes it from RAWG.
-
-### Why this approach
-
-- It avoids a huge one-time import.
-- It keeps the local database smaller.
-- It lets the app grow around real usage instead of a full catalogue dump.
-
-### Caching
-
-An in-memory LRU cache is applied only to:
-
-- `GET /api/games/search`
-- `GET /api/games/popular`
-
-This speeds up repeated list requests without affecting writes or single-game hydration.
-
-## 8. API documentation
-
-### Auth endpoints
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-
-### Profile endpoints
-
-- `GET /api/profiles/:username`
-- `GET /api/profiles/:username/liked-games`
-- `GET /api/profiles/:username/comments`
-- `GET /api/profiles/:username/ratings`
-
-### Game endpoints
-
-- `GET /api/games/search`
-- `GET /api/games/popular`
-- `GET /api/games/:gameId`
-- `POST /api/games/:gameId/likes`
-- `POST /api/games/:gameId/comments`
-- `POST /api/games/:gameId/ratings`
-
-### Search query options
-
-The search endpoint accepts these filters:
-
-- `search`
-- `page`
-- `pageSize`
-- `releasedFrom`
-- `releasedTo`
-- `ratingMin`
-- `ratingMax`
-- `metacriticMin`
-- `metacriticMax`
-- `platforms`
-- `genres`
-- `tags`
-- `ordering`
-
-### Popular query options
-
-- `page`
-- `pageSize`
-- `periodDays`
-
-## 9. Validation and error handling
-
-### Validation
-
-Request input is validated with DTO classes and decorators.
-
-Examples:
-
-- Email must be valid.
-- Password must be at least 8 characters.
-- Game comments are limited to 2000 characters.
-- Ratings must be whole numbers between 1 and 5.
-
-### Error handling
-
-The app uses:
-
-- `AppError` for typed application errors.
-- `asyncHandler(...)` to catch async route errors.
-- `errorMiddleware` as a global error handler.
-
-This keeps error responses predictable and avoids repeating `try/catch` blocks in controllers.
-
-## 10. Configuration
-
-### Important environment variables
-
-- `PORT` — HTTP port.
-- `NODE_ENV` — runtime mode.
-- `JWT_SECRET` — token signing secret.
-- `JWT_ACCESS_TTL` — access token lifetime.
-- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` — MySQL connection.
-- `TYPEORM_SYNCHRONIZE` — development-only schema sync toggle.
-- `RAWG_API_BASE_URL` — RAWG base URL. Fallback to `https://api.rawg.io/api`
-- `RAWG_API_KEY` — RAWG API key.
-
-### Database startup
-
-The server runs TypeORM migrations at startup.
-
-This means schema changes are applied automatically before the app starts listening.
-
-## 11. Development and build commands
-
-From `site/server`:
-
-```bash
-npm install
-npm run dev
-npm run build
-npm run start
+Each layer has a single responsibility, making the codebase testable, maintainable, and easy to evolve.
+
+## 3. Technology Stack
+
+### 3.1 Backend
+
+| Technology | Version | Purpose |
+|---|---|---|
+| Node.js | 22 | JavaScript runtime |
+| Express | 5.2.1 | HTTP framework |
+| TypeScript | 5.9.3 | Static typing, strict mode |
+| TypeORM | 0.3.28 | ORM with MySQL support |
+| mysql2 | 3.20 | MySQL driver |
+| class-validator | 0.15 | Decorator-based validation |
+| class-transformer | 0.5 | JSON → class instance conversion |
+| jsonwebtoken | 9.0 | JWT signing and verification |
+| bcryptjs | 3.0 | Password hashing |
+| cors | 2.8 | Cross-origin resource sharing |
+| dotenv | 17.3 | Environment configuration |
+| tsx | 4.19 | TypeScript execution engine (dev) |
+
+**Why Node.js + Express 5:**
+- Non-blocking I/O is ideal for an API making external HTTP calls (RAWG) and database queries concurrently
+- Express 5 is the latest version of the most mature Node.js framework — minimal, flexible, perfect for REST
+- TypeScript strict mode catches type errors at compile time
+
+**Why MySQL + TypeORM:**
+- Game data has structured relationships (platforms, ESRB ratings) that map naturally to SQL tables
+- ACID compliance ensures data integrity for social interactions
+- TypeORM provides decorators, migrations, repository pattern — schema lives in the code
+
+**Why class-validator:**
+- Declarative validation with decorators keeps rules close to data definitions
+- Whitelist mode strips unknown fields automatically
+- Consistent error responses for all validation failures
+
+**Why JWT + bcryptjs:**
+- Stateless authentication — no server-side sessions needed
+- Scales horizontally without shared session state
+- bcryptjs provides salted, adaptive-cost password hashing
+
+### 3.2 Frontend
+
+| Technology | Purpose |
+|---|---|
+| HTML5 | 7 static pages |
+| CSS3 | 13 modular CSS files with CSS custom properties for theming |
+| Vanilla JavaScript | 3 JS files (api.js, app-ui.js, score-color.js) |
+
+**Why no framework:**
+- 7 pages with moderate interactivity — a framework adds build complexity without proportional benefit
+- No bundler needed (no Webpack, Vite, etc.)
+- CSS custom properties provide dark/light mode theming
+
+### 3.3 External API
+
+| API | Purpose | Endpoints used |
+|---|---|---|
+| RAWG Video Games Database | Game catalog (850+ games) | `GET /games`, `GET /games/{id}` |
+
+Access requires a free API key configured via `RAWG_API_KEY` environment variable.
+
+---
+
+## 4. Data Model
+
+### 4.1 Entity list
+
+| Entity | Table | PK | Description |
+|---|---|---|---|
+| Profile | `profiles` | UUID (varchar 36) | User public profile |
+| UserCredentials | `user_credentials` | auto-increment | Login credentials |
+| Game | `games` | int (RAWG ID) | Game cached locally |
+| EsrbRating | `esrb_ratings` | int (RAWG ID) | ESRB/PEGI classification |
+| Platform | `platforms` | int (RAWG ID) | Gaming platform |
+| PlatformRequirements | `platform_requirements` | auto-increment | System requirements |
+| GamePlatform | `game_platforms` | auto-increment | Game ⇄ Platform link |
+| ProfileLikedGame | `profile_liked_games` | auto-increment | Like/favorite |
+| GameReview | `game_reviews` | auto-increment | Review (comment + rating) |
+
+---
+
+## 5. API Endpoints
+
+### 5.1 Authentication
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | No | Create account (email, password, optional username) |
+| `POST` | `/api/auth/login` | No | Log in, returns JWT |
+| `POST` | `/api/auth/logout` | Yes | Log out |
+| `GET` | `/api/auth/me` | Yes | Current authenticated user |
+
+### 5.2 Games
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/games/search` | No | Search games with filters |
+| `GET` | `/api/games/popular` | No | Popular games listing |
+| `GET` | `/api/games/stats` | No | Community statistics |
+| `GET` | `/api/games/recent-reviews` | No | Recently reviewed games |
+| `GET` | `/api/games/:gameId` | Optional | Game details (enriched with user state if auth) |
+| `POST` | `/api/games/:gameId/likes` | Yes | Like/favorite a game |
+| `GET` | `/api/games/:gameId/reviews` | No | Reviews for a game |
+| `POST` | `/api/games/:gameId/review` | Yes | Submit a review (comment + rating) |
+
+### 5.3 Profiles
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/profiles/:username` | No | Public profile |
+| `GET` | `/api/profiles/:username/liked-games` | No | User's liked games |
+| `GET` | `/api/profiles/:username/reviews` | No | User's reviews |
+
+### 5.4 Search filters
+
+The search endpoint accepts:
+- `search` — text query
+- `page`, `pageSize` — pagination
+- `releasedFrom`, `releasedTo` — date range
+- `ratingMin`, `ratingMax` — RAWG rating (0–5)
+- `metacriticMin`, `metacriticMax` — Metacritic score (0–100)
+- `platforms` — platform IDs (comma-separated)
+- `genres` — genre slugs (comma-separated)
+- `tags` — tag slugs (comma-separated)
+- `ordering` — sort field with direction prefix (`-` for descending)
+
+---
+
+## 6. Caching Strategy
+
+### 6.1 LRU Cache (in-memory)
+
+A generic LRU cache is implemented in `src/utils/lru-cache.ts` using JavaScript's `Map`:
+
+**Features:**
+- Configurable `maxSize` — oldest entries evicted when full
+- Configurable `ttlMs` — entries expire after a timeout
+- Background refresh — when `getOrSet` finds an entry more than halfway to expiry, it triggers an async refresh without blocking the caller
+- Error-safe factory — if the factory function throws, the key is cleaned up
+
+**Instances:**
+
+| Cache | Size | TTL | Purpose |
+|---|---|---|---|
+| `rawgSearchCache` | 50 | 1 hour | RAWG search results |
+| `rawgCountCache` | 1 | 1 hour | RAWG total games count |
+
+**Usage in search flow:**
+```
+1. Build cache key from all query params (JSON.stringify)
+2. rawgSearchCache.getOrSet(key, fetchFromRawg)
+3. If cached + not expired → return cached RAWG data
+4. If stale → remove from cache → fetch fresh from RAWG
+5. Enrich cached RAWG results with live community stats from DB
 ```
 
-## 12. Troubleshooting
+**Why only search/popular/stats:**
+- Search results are read-heavy and repetitive (users search same terms)
+- Community stats are always fetched fresh from DB to ensure accuracy
+- Individual game pages involve user-specific state (isLikedByCurrentUser) — caching would require per-user keys
 
-### The server does not start
+### 6.2 Lazy Hydration (database)
 
-Check:
+`GameSyncService.resolveGame()` implements a two-tier caching strategy:
 
-- MySQL is running.
-- `.env` values are correct.
-- The RAWG API key is set.
+```
+resolveGame(gameId):
+  1. Check local MySQL for game by RAWG ID
+  2. If found AND lastSyncedAt < 168 hours ago → return local copy
+  3. If missing or stale → fetch full data from RAWG API
+  4. Upsert into MySQL (game + platforms + ESRB + requirements)
+  5. Return fresh game with all relations loaded
+```
 
-### Login fails
+**Benefits:**
+- No massive one-time import — database grows with actual usage
+- Reduces RAWG API calls (rate limit of ~20,000 requests/month on free tier)
+- Pluggable staleness threshold (default 7 days, configurable via `staleAfterHours`)
 
-Check that the account exists and the password is correct.
+---
 
-### Search works but game details fail
+## 7. Authentication & Security
 
-This usually means RAWG access is missing or the game ID is invalid.
+### 7.1 JWT Authentication
 
-### Database errors appear after a code change
+- Tokens are signed with a configurable secret (`JWT_SECRET`)
+- Token TTL is configurable (`JWT_ACCESS_TTL`, default 4h)
+- Two middleware variants:
+  - `verifyToken` — required auth, returns 401 if missing/invalid
+  - `optionalAuth` — attaches user info if token present, continues as anonymous otherwise
+- Tokens can be sent via `Authorization: Bearer <token>` header or `x-access-token` header
 
-Re-run the server so migrations can apply again, and confirm the schema matches the entities.
+### 7.2 Password Security
+
+- Passwords hashed with bcryptjs (salt rounds: 10)
+- Only the hash is stored in the database
+- No plaintext passwords are ever logged or returned
+
+### 7.3 Input Validation
+
+- Every endpoint validates input via class-validator DTOs
+- `whitelist: true` — strips unknown properties
+- `forbidNonWhitelisted: true` — rejects requests with unexpected fields
+- Validation errors return 400 with field-level details
+
+### 7.4 Error Handling
+
+- `AppError` class with `statusCode` and optional `details`
+- Global `errorMiddleware` catches all errors
+- Known errors return typed JSON responses
+- Unknown errors return 500 with no stack trace in production
+
+---
+
+## 8. Deployment
+
+### 8.1 Docker architecture
+
+Three services defined in `Docker/docker-compose.yml`:
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ nginx:alpine │───▶│node:22-alpine│───▶│  mysql:8.0   │
+│ (Frontend)   │     │  (Backend)   │     │ (Database)   │
+│ Port 8081    │     │  Port 3000   │     │  Port 3306   │
+└──────────────┘     └──────────────┘     └──────────────┘
+```
+
+**Frontend (Dockerfile.frontend):**
+- Base: `nginx:alpine` (~5 MB)
+- Copies static HTML/CSS/JS files
+- Replaces `{{ENDPOINT}}` placeholder with `/api` at build time
+- Nginx proxies `/api/` requests to backend container
+
+**Backend (Dockerfile.backend):**
+- Multi-stage build (deps → build → runner)
+- Base: `node:22-alpine`
+- Stage 1: installs all dependencies
+- Stage 2: compiles TypeScript
+- Stage 3: production only (npm ci --omit=dev, compiled JS)
+- Exposes port 3000
+
+**Database:**
+- `mysql:8.0` with named volume for persistence
+- Health check ensures backend waits for DB readiness
+
+### 8.2 Nginx configuration
+
+```nginx
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index home.html;
+
+    location /api/ {
+        proxy_pass http://backend:3000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        try_files $uri $uri/ /home.html;
+    }
+}
+```
+
+### 8.3 Kubernetes readiness
+
+The Docker architecture is compatible with Kubernetes:
+- Stateless backend (JWT auth, no server sessions)
+- MySQL runs as a StatefulSet with PersistentVolume
+- Frontend and backend are stateless Deployments with ConfigMap for nginx
+- Horizontal Pod Autoscaler can scale backend replicas based on CPU/memory
+
+Not deployed on K8s currently — Docker Compose is sufficient for a single VPS with moderate traffic.
+
+---
+
+## 9. Frontend Architecture
+
+### 9.1 Pages
+
+| Page | Route | Purpose |
+|---|---|---|
+| `home.html` | `/` | Landing page with popular games, recently reviewed games, community stats |
+| `connect.html` | `/connect` | Login/Register form |
+| `search.html` | `/search` | Game search with filters and paginated results |
+| `game.html` | `/game?id={id}` | Game detail with metadata, reviews, like/review form |
+| `user.html` | `/user?username={name}` | Public user profile |
+| `contact.html` | `/contact` | Contact form |
+| `error.html` | `*` | Error page |
+
+### 9.2 JavaScript modules
+
+**api.js** — API client module:
+- Token management (localStorage)
+- All API call functions (auth, games, profiles)
+- Theme persistence
+- Base URL configured via `{{ENDPOINT}}` placeholder (replaced at Docker build)
+
+**app-ui.js** — UI controller:
+- Header rendering with auth state
+- Page-specific logic for all 7 pages
+- DOM manipulation, event handlers
+- Search pagination
+- Review submission
+- Theme toggle (dark/light + brightness)
+
+**score-color.js** — Utility:
+- Interpolates color gradient (red → orange → cyan → green) based on score (0–100)
+
+### 9.3 CSS architecture
+
+13 modular CSS files organized by component:
+
+```
+assets/css/
+├── variables/variables.css    — CSS custom properties (theme colors, typography)
+├── components/
+│   ├── header.css              — Navigation bar
+│   ├── footer.css              — Page footer
+│   ├── authPage.css            — Login/Register page
+│   ├── gamePresent.css         — Game hero banner
+│   ├── topGame.css             — Popular games carousel
+│   ├── recentReview.css        — Recent reviews list
+│   ├── gamePage.css            — Game detail page
+│   ├── searchPage.css          — Search page
+│   ├── userPage.css            — User profile page
+│   ├── contactPage.css         — Contact page
+│   └── errorPage.css           — Error page
+├── home.main.css               — Entry point (imports all + global styles)
+```
+
+Dark/light mode is toggled by adding/removing `.lightMode` class on `<body>`.
+
+---
+
+## 10. Project Structure
+
+```
+GameScore---Yboost-B2/
+├── Docker/
+│   ├── docker-compose.yml        — Full-stack deployment
+│   ├── Dockerfile.frontend       — Nginx static server
+│   ├── Dockerfile.backend        — Node.js production image
+│   └── nginx.conf                — Reverse proxy config
+├── doc/
+│   ├── technical-documentation.md — This document
+│   └── Doc.odt                   — Design document
+├── site/
+│   ├── FrontEnd/
+│   │   └── Public/
+│   │       ├── *.html            — 7 static pages
+│   │       └── assets/
+│   │           ├── css/          — 13 CSS files
+│   │           ├── js/           — 3 JS files
+│   │           ├── img/          — Images
+│   │           └── Font/         — Roboto, Orbitron, Cinzel
+│   └── server/
+│       ├── package.json
+│       ├── tsconfig.json
+│       ├── docker-compose.yml    — MySQL-only (dev)
+│       └── src/
+│           ├── server.ts         — Bootstrap
+│           ├── app.ts            — Express app setup
+│           ├── config/           — DB, auth, RAWG config
+│           ├── controllers/      — Request handlers
+│           ├── entities/         — TypeORM entity classes
+│           ├── middlewares/      — Auth, validation, error
+│           ├── migrations/       — Database migrations
+│           ├── repositories/     — Data access layer
+│           ├── routes/           — Route definitions
+│           ├── services/         — Business logic
+│           ├── types/            — DTOs, presenters, types
+│           └── utils/            — LRU cache, error, helpers
+└── README.md
+```
+
+---
+
+
+## 11. Performance & Optimization
+
+### Current optimizations
+
+| Optimization | Location | Impact |
+|---|---|---|
+| LRU cache for search results | `game.service.ts` | Reduces RAWG API calls for repeated queries |
+| LRU cache for RAWG game count | `game.service.ts` | 1-hour TTL, avoids counting on every page load |
+| Lazy hydration of games | `game-sync.service.ts` | No DB import — grows with usage, 7-day staleness |
+| Background cache refresh | `lru-cache.ts` | Refreshes data when >50% TTL elapsed without blocking |
+| Community stats always fresh | `game.service.ts` | Cache invalidated stats not served — accuracy > speed |
+| Multi-stage Docker build | `Dockerfile.backend` | Minimal production image (~30 MB) |
+
+### Future improvements
+
+| Issue | Solution |
+|---|---|
+| Cache size hardcoded (50) | Make `maxSize` configurable via env var |
+| No cache warming on restart | Pre-cache popular queries during bootstrap |
+| Cache is process-local | Add Redis for multi-instance deployments |
+| Single VPS bottleneck | Kubernetes with HPA for auto-scaling |
+| No monitoring | Add health check endpoint + Prometheus metrics |
+| No automated tests | Add Jest/ts-jest for unit + integration tests |
